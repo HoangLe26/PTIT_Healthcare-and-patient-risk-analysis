@@ -1,9 +1,0 @@
-dataset: readmission
-seed: 42
-folds: 3
-search_trials: 6
-bootstrap_repetitions: 1000
-threads: 2
-mode: full
-rf_safe_budget: true
-

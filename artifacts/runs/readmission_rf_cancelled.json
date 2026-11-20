@@ -1,8 +1,0 @@
-{
-  "model": "random_forest",
-  "status": "cancelled",
-  "reason": "resource time budget, max_features=0.6 high-dimensional one-hot",
-  "test_opened": false,
-  "metrics_available": false,
-  "resumed_with": "rf_safe_budget=true; sqrt; 80 trees; 4 configurations"
-}

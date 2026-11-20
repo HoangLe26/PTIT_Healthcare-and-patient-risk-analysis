@@ -1,2 +1,0 @@
-﻿mean_fit_time,std_fit_time,mean_score_time,std_score_time,param_model__strategy,params,split0_test_score,split1_test_score,mean_test_score,std_test_score,rank_test_score,split0_train_score,split1_train_score,mean_train_score,std_train_score,model,feature_set
-0.06410109996795654,0.0005284547805786133,0.019500374794006348,0.0004981756210327148,most_frequent,{'model__strategy': 'most_frequent'},0.13504823151125403,0.08764607679465776,0.1113471541529559,0.023701077358298135,1,0.08764607679465776,0.13504823151125403,0.1113471541529559,0.023701077358298135,dummy,full

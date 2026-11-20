@@ -1,3 +1,0 @@
-﻿mean_fit_time,std_fit_time,mean_score_time,std_score_time,param_model__strategy,params,split0_test_score,split1_test_score,split2_test_score,split3_test_score,split4_test_score,mean_test_score,std_test_score,rank_test_score,split0_train_score,split1_train_score,split2_train_score,split3_train_score,split4_train_score,mean_train_score,std_train_score,model,feature_set
-0.01220083236694336,0.00039959150168180203,0.006000137329101563,0.0006313561776456727,prior,{'model__strategy': 'prior'},0.5,0.5,0.5,0.5,0.5,0.5,0.0,1,0.5,0.5,0.5,0.5,0.5,0.5,0.0,dummy,full
-0.011612701416015624,0.0004863851302851547,0.005800199508666992,0.00040016410120550204,most_frequent,{'model__strategy': 'most_frequent'},0.5,0.5,0.5,0.5,0.5,0.5,0.0,1,0.5,0.5,0.5,0.5,0.5,0.5,0.0,dummy,full

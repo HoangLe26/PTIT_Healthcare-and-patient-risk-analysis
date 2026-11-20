@@ -1,5 +1,0 @@
-﻿comparison,metric,point,lower,upper,repetitions
-logistic - logistic_balanced,roc_auc,0.0,-1.1102230246251565e-16,0.0,1000
-logistic - logistic_balanced,ap,0.0,0.0,0.0,1000
-logistic - logistic_balanced,brier,-0.00033819300647310035,-0.0005866548497893333,-9.507823781146654e-05,1000
-logistic - logistic_balanced,f2,0.0,0.0,0.0,1000
