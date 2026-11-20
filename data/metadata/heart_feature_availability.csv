@@ -1,0 +1,17 @@
+﻿dataset,feature,available_at_prediction,include,evidence,reason
+heart,age,True,True,UCI Cleveland diagnostic variables,eligible by protocol
+heart,sex,True,True,UCI Cleveland diagnostic variables,eligible by protocol
+heart,cp,True,True,UCI Cleveland diagnostic variables,eligible by protocol
+heart,trestbps,True,True,UCI Cleveland diagnostic variables,eligible by protocol
+heart,chol,True,True,UCI Cleveland diagnostic variables,eligible by protocol
+heart,fbs,True,True,UCI Cleveland diagnostic variables,eligible by protocol
+heart,restecg,True,True,UCI Cleveland diagnostic variables,eligible by protocol
+heart,thalach,True,True,UCI Cleveland diagnostic variables,eligible by protocol
+heart,exang,True,True,UCI Cleveland diagnostic variables,eligible by protocol
+heart,oldpeak,True,True,UCI Cleveland diagnostic variables,eligible by protocol
+heart,slope,True,True,UCI Cleveland diagnostic variables,eligible by protocol
+heart,ca,True,True,UCI Cleveland diagnostic variables,eligible by protocol
+heart,thal,True,True,UCI Cleveland diagnostic variables,eligible by protocol
+heart,y,False,False,UCI Cleveland diagnostic variables,ID/target/excluded by protocol
+heart,row_id,True,False,UCI Cleveland diagnostic variables,ID/target/excluded by protocol
+heart,patient_nbr,True,False,UCI Cleveland diagnostic variables,ID/target/excluded by protocol

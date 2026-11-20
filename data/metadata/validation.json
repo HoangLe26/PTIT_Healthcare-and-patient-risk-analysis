@@ -1,0 +1,10 @@
+{
+  "heart_rows": 303,
+  "readmission_rows": 101766,
+  "target_values_valid": true,
+  "missing_tokens_checked": true,
+  "categorical_codes_valid": true,
+  "nonnegative_counts": true,
+  "unique_encounter_ids": true,
+  "note": "Range checks flag malformed records; no statistical outliers removed to improve metrics"
+}

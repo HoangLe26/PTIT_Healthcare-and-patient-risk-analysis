@@ -1,0 +1,10 @@
+{
+  "pytest_passed": 12,
+  "pytest_failed": 0,
+  "powershell_smoke_replay_passed": true,
+  "pip_check_passed": true,
+  "notebooks_executed": 4,
+  "artifact_checks": "54/54",
+  "pdf_pages": 25,
+  "powerpoint_rendered_slides": 14
+}

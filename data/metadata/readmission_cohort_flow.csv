@@ -1,0 +1,3 @@
+﻿step,reason,rows_before,rows_removed,rows_after
+1,Loại expired/hospice theo IDS_mapping.csv,101766,2423,99343
+2,Loại gender Unknown/Invalid,99343,3,99340

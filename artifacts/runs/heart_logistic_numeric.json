@@ -1,0 +1,12 @@
+{
+  "model": "logistic_numeric",
+  "feature_set": "numeric",
+  "mean_score": 0.803949805068226,
+  "std_score": 0.03655066795359513,
+  "params": "{\"model__penalty\": \"l2\", \"model__class_weight\": null, \"model__C\": 0.01}",
+  "train_seconds": 0.7548540999996476,
+  "calibration_selected": false,
+  "threshold": 0.2936583033151524,
+  "threshold_brier_raw": 0.20716225020192974,
+  "threshold_brier_calibrated": 0.21328385642845035
+}

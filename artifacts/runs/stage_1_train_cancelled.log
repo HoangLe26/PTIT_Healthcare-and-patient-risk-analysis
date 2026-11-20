@@ -1,0 +1,11 @@
+readmission/dummy: training 59372 fit rows, 3 folds
+dummy: CV=0.1120, threshold=0.1120, 16.0s
+readmission/logistic: training 59372 fit rows, 3 folds
+logistic: CV=0.2133, threshold=0.0928, 69.8s
+readmission/logistic_balanced: training 59372 fit rows, 3 folds
+logistic_balanced: CV=0.2144, threshold=0.0871, 244.7s
+readmission/gaussian_nb: training 59372 fit rows, 3 folds
+gaussian_nb: CV=0.1893, threshold=0.1038, 1.5s
+readmission/xgboost: training 59372 fit rows, 3 folds
+xgboost: CV=0.2204, threshold=0.0905, 134.0s
+readmission/random_forest: training 59372 fit rows, 3 folds

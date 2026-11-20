@@ -1,0 +1,272 @@
+[
+  {
+    "check": "heart: independent test metrics",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\heart_test_metrics.csv"
+  },
+  {
+    "check": "heart: required models",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\heart_test_metrics.csv"
+  },
+  {
+    "check": "heart: finite probability metrics",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\heart_test_metrics.csv"
+  },
+  {
+    "check": "heart: cv_results",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\heart_cv_results.csv"
+  },
+  {
+    "check": "heart: controlled_ablations_summary",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\heart_controlled_ablations_summary.csv"
+  },
+  {
+    "check": "heart: learning_curve",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\heart_learning_curve.csv"
+  },
+  {
+    "check": "heart: confidence_intervals",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\heart_confidence_intervals.csv"
+  },
+  {
+    "check": "heart: subgroups",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\heart_subgroups.csv"
+  },
+  {
+    "check": "heart: case_studies",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\heart_case_studies.csv"
+  },
+  {
+    "check": "heart: permutation_importance",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\heart_permutation_importance.csv"
+  },
+  {
+    "check": "heart: frozen",
+    "passed": true,
+    "evidence": "artifacts\\models\\heart_freeze.json"
+  },
+  {
+    "check": "heart: roc_pr figure",
+    "passed": true,
+    "evidence": "artifacts\\figures\\heart_roc_pr.png"
+  },
+  {
+    "check": "heart: confusion figure",
+    "passed": true,
+    "evidence": "artifacts\\figures\\heart_confusion.png"
+  },
+  {
+    "check": "heart: calibration figure",
+    "passed": true,
+    "evidence": "artifacts\\figures\\heart_calibration.png"
+  },
+  {
+    "check": "heart: importance figure",
+    "passed": true,
+    "evidence": "artifacts\\figures\\heart_importance.png"
+  },
+  {
+    "check": "heart: learning_curve figure",
+    "passed": true,
+    "evidence": "artifacts\\figures\\heart_learning_curve.png"
+  },
+  {
+    "check": "heart: threshold_tradeoff figure",
+    "passed": true,
+    "evidence": "artifacts\\figures\\heart_threshold_tradeoff.png"
+  },
+  {
+    "check": "heart: regularization figure",
+    "passed": true,
+    "evidence": "artifacts\\figures\\heart_regularization.png"
+  },
+  {
+    "check": "readmission: independent test metrics",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\readmission_test_metrics.csv"
+  },
+  {
+    "check": "readmission: required models",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\readmission_test_metrics.csv"
+  },
+  {
+    "check": "readmission: finite probability metrics",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\readmission_test_metrics.csv"
+  },
+  {
+    "check": "readmission: cv_results",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\readmission_cv_results.csv"
+  },
+  {
+    "check": "readmission: controlled_ablations_summary",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\readmission_controlled_ablations_summary.csv"
+  },
+  {
+    "check": "readmission: learning_curve",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\readmission_learning_curve.csv"
+  },
+  {
+    "check": "readmission: confidence_intervals",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\readmission_confidence_intervals.csv"
+  },
+  {
+    "check": "readmission: subgroups",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\readmission_subgroups.csv"
+  },
+  {
+    "check": "readmission: case_studies",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\readmission_case_studies.csv"
+  },
+  {
+    "check": "readmission: permutation_importance",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\readmission_permutation_importance.csv"
+  },
+  {
+    "check": "readmission: frozen",
+    "passed": true,
+    "evidence": "artifacts\\models\\readmission_freeze.json"
+  },
+  {
+    "check": "readmission: roc_pr figure",
+    "passed": true,
+    "evidence": "artifacts\\figures\\readmission_roc_pr.png"
+  },
+  {
+    "check": "readmission: confusion figure",
+    "passed": true,
+    "evidence": "artifacts\\figures\\readmission_confusion.png"
+  },
+  {
+    "check": "readmission: calibration figure",
+    "passed": true,
+    "evidence": "artifacts\\figures\\readmission_calibration.png"
+  },
+  {
+    "check": "readmission: importance figure",
+    "passed": true,
+    "evidence": "artifacts\\figures\\readmission_importance.png"
+  },
+  {
+    "check": "readmission: learning_curve figure",
+    "passed": true,
+    "evidence": "artifacts\\figures\\readmission_learning_curve.png"
+  },
+  {
+    "check": "readmission: threshold_tradeoff figure",
+    "passed": true,
+    "evidence": "artifacts\\figures\\readmission_threshold_tradeoff.png"
+  },
+  {
+    "check": "readmission: regularization figure",
+    "passed": true,
+    "evidence": "artifacts\\figures\\readmission_regularization.png"
+  },
+  {
+    "check": "heart_conformal.json",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\heart_conformal.json"
+  },
+  {
+    "check": "optimization.json",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\optimization.json"
+  },
+  {
+    "check": "readmission_topk.csv",
+    "passed": true,
+    "evidence": "artifacts\\metrics\\readmission_topk.csv"
+  },
+  {
+    "check": "01_heart_eda.ipynb: exists",
+    "passed": true,
+    "evidence": "notebooks\\01_heart_eda.ipynb"
+  },
+  {
+    "check": "01_heart_eda.ipynb: executed",
+    "passed": true,
+    "evidence": "notebooks\\01_heart_eda.ipynb"
+  },
+  {
+    "check": "02_readmission_eda.ipynb: exists",
+    "passed": true,
+    "evidence": "notebooks\\02_readmission_eda.ipynb"
+  },
+  {
+    "check": "02_readmission_eda.ipynb: executed",
+    "passed": true,
+    "evidence": "notebooks\\02_readmission_eda.ipynb"
+  },
+  {
+    "check": "03_results_and_errors.ipynb: exists",
+    "passed": true,
+    "evidence": "notebooks\\03_results_and_errors.ipynb"
+  },
+  {
+    "check": "03_results_and_errors.ipynb: executed",
+    "passed": true,
+    "evidence": "notebooks\\03_results_and_errors.ipynb"
+  },
+  {
+    "check": "04_optimization_and_course_links.ipynb: exists",
+    "passed": true,
+    "evidence": "notebooks\\04_optimization_and_course_links.ipynb"
+  },
+  {
+    "check": "04_optimization_and_course_links.ipynb: executed",
+    "passed": true,
+    "evidence": "notebooks\\04_optimization_and_course_links.ipynb"
+  },
+  {
+    "check": "final_report.md",
+    "passed": true,
+    "evidence": "reports\\final_report.md"
+  },
+  {
+    "check": "final_report.pdf",
+    "passed": true,
+    "evidence": "reports\\final_report.pdf"
+  },
+  {
+    "check": "presentation.pptx",
+    "passed": true,
+    "evidence": "reports\\presentation.pptx"
+  },
+  {
+    "check": "course_alignment.md",
+    "passed": true,
+    "evidence": "reports\\course_alignment.md"
+  },
+  {
+    "check": "literature_review.md",
+    "passed": true,
+    "evidence": "reports\\literature_review.md"
+  },
+  {
+    "check": "defense_qa.md",
+    "passed": true,
+    "evidence": "reports\\defense_qa.md"
+  },
+  {
+    "check": "slides_outline.md",
+    "passed": true,
+    "evidence": "reports\\slides_outline.md"
+  }
+]

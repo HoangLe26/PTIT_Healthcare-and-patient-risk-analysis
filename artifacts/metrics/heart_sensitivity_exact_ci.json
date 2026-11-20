@@ -1,0 +1,9 @@
+{
+  "tp": 28,
+  "positives": 28,
+  "point": 1.0,
+  "lower": 0.8765638814997305,
+  "upper": 1.0,
+  "method": "Clopper-Pearson 95% binomial exact; conditional on iid positive observations",
+  "note": "Bootstrap recall interval collapses when no false negatives; finite n does not establish 100% population sensitivity"
+}

@@ -1,0 +1,4 @@
+﻿model,feature_set,mean_score,std_score,params,train_seconds,calibration_selected,threshold,threshold_brier_raw,threshold_brier_calibrated
+dummy,full,0.5,0.0,"{""model__strategy"": ""most_frequent""}",0.07354560000021593,False,0.0,0.4594594594594595,0.24858190260789187
+logistic,full,0.8389817911557043,0.039650687476774416,"{""model__penalty"": ""l1"", ""model__class_weight"": null, ""model__C"": 100}",0.08076179999989108,True,0.2711956650031049,0.15536059180257522,0.14350270558057873
+gaussian_nb,numeric,0.7663198315372228,0.008485073702464985,"{""model__var_smoothing"": 1e-07}",0.037897700000030454,False,0.017846560894805477,0.21557749506109047,0.22049728009896344

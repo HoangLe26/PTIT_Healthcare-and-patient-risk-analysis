@@ -1,0 +1,7 @@
+seed: 42
+folds: 2
+search_trials: 1
+bootstrap_repetitions: 20
+threads: 2
+mode: smoke
+

@@ -1,0 +1,7 @@
+{
+  "selected": "xgboost",
+  "test_n": 20031,
+  "bootstrap_repetitions": 1000,
+  "test_used_for_selection": false,
+  "artifact_hash": "8121f1ee00f7ea82887a8ad25f02559003c501df511beb2384e817187d40b577"
+}

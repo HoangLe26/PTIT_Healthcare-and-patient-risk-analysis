@@ -1,0 +1,62 @@
+{
+  "dataset": "heart",
+  "raw_rows": 303,
+  "rows": 303,
+  "columns": 16,
+  "patients": 303,
+  "positive": 139,
+  "prevalence": 0.45874587458745875,
+  "missing": {
+    "age": 0,
+    "sex": 0,
+    "cp": 0,
+    "trestbps": 0,
+    "chol": 0,
+    "fbs": 0,
+    "restecg": 0,
+    "thalach": 0,
+    "exang": 0,
+    "oldpeak": 0,
+    "slope": 0,
+    "ca": 4,
+    "thal": 2,
+    "y": 0,
+    "row_id": 0,
+    "patient_nbr": 0
+  },
+  "flow": [],
+  "splits": {
+    "fit": {
+      "rows": 169,
+      "patients": 169,
+      "positive": 78,
+      "prevalence": 0.46153846153846156
+    },
+    "calibration": {
+      "rows": 36,
+      "patients": 36,
+      "positive": 16,
+      "prevalence": 0.4444444444444444
+    },
+    "threshold": {
+      "rows": 37,
+      "patients": 37,
+      "positive": 17,
+      "prevalence": 0.4594594594594595
+    },
+    "test": {
+      "rows": 61,
+      "patients": 61,
+      "positive": 28,
+      "prevalence": 0.45901639344262296
+    },
+    "development": {
+      "rows": 242,
+      "patients": 242,
+      "positive": 111,
+      "prevalence": 0.45867768595041325
+    }
+  },
+  "processed_sha256": "2b5d6aadec56946452c054a6c165ae7affdc87562b9b68dfbaf1c89c5a0c577a",
+  "split_sha256": "f06680bfe03dab2b9f5b958d4985b3cbcc457aa3479e2bb576e17f40c47cfbf8"
+}

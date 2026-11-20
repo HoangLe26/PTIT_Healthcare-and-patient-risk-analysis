@@ -1,0 +1,24 @@
+[
+  {
+    "dataset": "heart",
+    "url": "https://archive.ics.uci.edu/static/public/45/heart+disease.zip",
+    "page": "https://archive.ics.uci.edu/dataset/45/heart+disease",
+    "doi": "10.24432/C52P4X",
+    "license": "CC BY 4.0",
+    "downloaded_utc": "2026-10-11T11:43:37.827994+00:00",
+    "path": "data\\raw\\heart\\source.zip",
+    "bytes": 128894,
+    "sha256": "b17cd273da9ce1caa4710fce80227ea454d4dbf9fcbc8e6a9121672751563adc"
+  },
+  {
+    "dataset": "readmission",
+    "url": "https://archive.ics.uci.edu/static/public/296/diabetes+130-us+hospitals+for+years+1999-2008.zip",
+    "page": "https://archive.ics.uci.edu/dataset/296/diabetes+130-us+hospitals+for+years+1999-2008",
+    "doi": "10.24432/C5230J",
+    "license": "CC BY 4.0",
+    "downloaded_utc": "2026-10-11T11:43:37.891993+00:00",
+    "path": "data\\raw\\readmission\\source.zip",
+    "bytes": 3170254,
+    "sha256": "f82ac129da2ddd2299391ff6fbae3a6a58b3edcf59ac9d7bd480c00fe453112a"
+  }
+]

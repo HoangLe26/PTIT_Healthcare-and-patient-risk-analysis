@@ -1,0 +1,12 @@
+{
+  "file": "healthcare_ml_submission.zip",
+  "sha256": "28b57d586f8f58bbb2abb16ad351e69bba1f859f73f9b8aa2d0ef40d465d2e42",
+  "bytes": 27557266,
+  "file_count": 311,
+  "excluded": [
+    ".venv",
+    "tmp",
+    "__pycache__"
+  ],
+  "purpose": "Private local handoff; not submitted or published"
+}

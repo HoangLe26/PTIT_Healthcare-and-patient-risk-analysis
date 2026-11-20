@@ -1,0 +1,12 @@
+{
+  "model": "dummy",
+  "feature_set": "full",
+  "mean_score": 0.1113471541529559,
+  "std_score": 0.023701077358298135,
+  "params": "{\"model__strategy\": \"most_frequent\"}",
+  "train_seconds": 0.34433050000006915,
+  "calibration_selected": false,
+  "threshold": 0.0,
+  "threshold_brier_raw": 0.11690683986198498,
+  "threshold_brier_calibrated": 0.10324191148926372
+}

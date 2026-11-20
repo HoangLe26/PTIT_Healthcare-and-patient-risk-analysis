@@ -1,0 +1,23 @@
+{
+  "dataset": "readmission",
+  "models": {
+    "readmission_dummy.joblib": "d9f53d8efb1330a824b56174cd787bbe14377f85f1f5ad516ff4eea72a5ac4a8",
+    "readmission_gaussian_nb.joblib": "92366bed68588c9a225c4675da59bd384d6042f04cc59a7cad7f09f88cd04772",
+    "readmission_logistic.joblib": "f560c681619edd18fcd7ab3ff6d1312ffbfcd8a24c4dbbd481f7dd884d95db0d",
+    "readmission_logistic_balanced.joblib": "0a44bec451926606c7e8e0886e3bedb14bbdfcdaf8f030bb2ec10b20039f5344",
+    "readmission_logistic_engineered.joblib": "f7c038d99578f03b01e2aefce8f618a42ec2d0d86f69b595bbb12fd3e9ac43e1",
+    "readmission_random_forest.joblib": "562555f909eda927a0681c11fbfc102ff26302fda268bc97104cb3d62dbcc3a7",
+    "readmission_selected.joblib": "8121f1ee00f7ea82887a8ad25f02559003c501df511beb2384e817187d40b577",
+    "readmission_xgboost.joblib": "6fae40ec3cfbaf969f76b4149afe81a90e431c1135f22d13e81c4e41ca916990"
+  },
+  "split_hash": "7e92bafff0295fd92835843a8db20532ccc59d20593c20d05a94a1537556af7b",
+  "processed_hash": "0c02748ae8db4e23442f0872b1f7f50f5e81978e9e1777d2230f845c53e9bc79",
+  "selected": "xgboost",
+  "protocol_hash": "c377c37e623f28f1a12cbaaf266cb96f3aa8cf8ef20aa481f60b2a8738574255",
+  "pipeline_source_hashes": {
+    "models.py": "63e73a396375fa0efafdd318ef09c5696baa53a41eb9fc84d04025b7c00bb6d7",
+    "data.py": "ba88535b7db8ca75931609d0fe12edb08290ade42d38b8aa3fa6f10ac55c546d",
+    "calibration.py": "704aecd32bd5638be14a7b2946dec827e1a381de0008676c00f7e4c99394dcb2"
+  },
+  "timestamp_utc": "2026-10-11T11:19:08.802363+00:00"
+}

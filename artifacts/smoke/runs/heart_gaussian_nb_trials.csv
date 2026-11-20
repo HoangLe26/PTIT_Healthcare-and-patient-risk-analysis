@@ -1,0 +1,2 @@
+﻿mean_fit_time,std_fit_time,mean_score_time,std_score_time,param_model__var_smoothing,params,split0_test_score,split1_test_score,mean_test_score,std_test_score,rank_test_score,split0_train_score,split1_train_score,mean_train_score,std_train_score,model,feature_set
+0.0055005550384521484,0.0004963874816894531,0.004500031471252441,0.0004996061325073242,1e-07,{'model__var_smoothing': 1e-07},0.7748049052396878,0.7578347578347578,0.7663198315372228,0.008485073702464985,1,0.8455840455840457,0.8567447045707915,0.8511643750774186,0.005580329493372949,gaussian_nb,numeric

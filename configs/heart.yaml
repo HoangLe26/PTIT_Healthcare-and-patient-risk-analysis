@@ -1,0 +1,8 @@
+dataset: heart
+seed: 42
+folds: 5
+search_trials: 12
+bootstrap_repetitions: 1000
+threads: 2
+mode: full
+

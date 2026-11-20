@@ -1,0 +1,12 @@
+{
+  "model": "gaussian_nb",
+  "feature_set": "numeric",
+  "mean_score": 0.7663198315372228,
+  "std_score": 0.008485073702464985,
+  "params": "{\"model__var_smoothing\": 1e-07}",
+  "train_seconds": 0.037897700000030454,
+  "calibration_selected": false,
+  "threshold": 0.017846560894805477,
+  "threshold_brier_raw": 0.21557749506109047,
+  "threshold_brier_calibrated": 0.22049728009896344
+}

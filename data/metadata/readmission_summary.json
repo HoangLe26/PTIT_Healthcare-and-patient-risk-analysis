@@ -1,0 +1,112 @@
+{
+  "dataset": "readmission",
+  "raw_rows": 101766,
+  "rows": 99340,
+  "columns": 51,
+  "patients": 69987,
+  "positive": 11314,
+  "prevalence": 0.1138916851218039,
+  "missing": {
+    "encounter_id": 0,
+    "patient_nbr": 0,
+    "race": 2232,
+    "gender": 0,
+    "age": 0,
+    "weight": 96215,
+    "admission_type_id": 0,
+    "discharge_disposition_id": 0,
+    "admission_source_id": 0,
+    "time_in_hospital": 0,
+    "payer_code": 39397,
+    "medical_specialty": 48614,
+    "num_lab_procedures": 0,
+    "num_procedures": 0,
+    "num_medications": 0,
+    "number_outpatient": 0,
+    "number_emergency": 0,
+    "number_inpatient": 0,
+    "diag_1": 20,
+    "diag_2": 356,
+    "diag_3": 1419,
+    "number_diagnoses": 0,
+    "max_glu_serum": 0,
+    "A1Cresult": 0,
+    "metformin": 0,
+    "repaglinide": 0,
+    "nateglinide": 0,
+    "chlorpropamide": 0,
+    "glimepiride": 0,
+    "acetohexamide": 0,
+    "glipizide": 0,
+    "glyburide": 0,
+    "tolbutamide": 0,
+    "pioglitazone": 0,
+    "rosiglitazone": 0,
+    "acarbose": 0,
+    "miglitol": 0,
+    "troglitazone": 0,
+    "tolazamide": 0,
+    "examide": 0,
+    "citoglipton": 0,
+    "insulin": 0,
+    "glyburide-metformin": 0,
+    "glipizide-metformin": 0,
+    "glimepiride-pioglitazone": 0,
+    "metformin-rosiglitazone": 0,
+    "metformin-pioglitazone": 0,
+    "change": 0,
+    "diabetesMed": 0,
+    "y": 0,
+    "row_id": 0
+  },
+  "flow": [
+    {
+      "step": 1,
+      "reason": "Loại expired/hospice theo IDS_mapping.csv",
+      "rows_before": 101766,
+      "rows_removed": 2423,
+      "rows_after": 99343
+    },
+    {
+      "step": 2,
+      "reason": "Loại gender Unknown/Invalid",
+      "rows_before": 99343,
+      "rows_removed": 3,
+      "rows_after": 99340
+    }
+  ],
+  "splits": {
+    "fit": {
+      "rows": 59372,
+      "patients": 42013,
+      "positive": 6649,
+      "prevalence": 0.11198881627703294
+    },
+    "calibration": {
+      "rows": 10083,
+      "patients": 7024,
+      "positive": 1194,
+      "prevalence": 0.11841713775662005
+    },
+    "threshold": {
+      "rows": 9854,
+      "patients": 6999,
+      "positive": 1152,
+      "prevalence": 0.11690683986198498
+    },
+    "test": {
+      "rows": 20031,
+      "patients": 13951,
+      "positive": 2319,
+      "prevalence": 0.11577055563875992
+    },
+    "development": {
+      "rows": 79309,
+      "patients": 56036,
+      "positive": 8995,
+      "prevalence": 0.1134171405515137
+    }
+  },
+  "processed_sha256": "0c02748ae8db4e23442f0872b1f7f50f5e81978e9e1777d2230f845c53e9bc79",
+  "split_sha256": "7e92bafff0295fd92835843a8db20532ccc59d20593c20d05a94a1537556af7b"
+}

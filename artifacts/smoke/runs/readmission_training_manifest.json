@@ -1,0 +1,19 @@
+{
+  "selected": "gaussian_nb",
+  "config": {
+    "seed": 42,
+    "folds": 2,
+    "search_trials": 1,
+    "bootstrap_repetitions": 20,
+    "threads": 2,
+    "mode": "smoke",
+    "dataset": "readmission"
+  },
+  "primary_metric": "average_precision",
+  "fit_rows": 2442,
+  "timestamp_utc": "2026-10-11T11:44:24.566009+00:00",
+  "elapsed_seconds": 0.05161210000005667,
+  "processed_hash": "0c02748ae8db4e23442f0872b1f7f50f5e81978e9e1777d2230f845c53e9bc79",
+  "split_hash": "7e92bafff0295fd92835843a8db20532ccc59d20593c20d05a94a1537556af7b",
+  "selected_without_test": true
+}

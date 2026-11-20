@@ -1,0 +1,3 @@
+heart: independent test assessment already saved; reused
+readmission: bootstrap 1000 paired patient resamples for ['xgboost', 'logistic']
+readmission: assessment saved (xgboost)

@@ -1,0 +1,19 @@
+{
+  "selected": "logistic",
+  "config": {
+    "seed": 42,
+    "folds": 2,
+    "search_trials": 1,
+    "bootstrap_repetitions": 20,
+    "threads": 2,
+    "mode": "smoke",
+    "dataset": "heart"
+  },
+  "primary_metric": "roc_auc",
+  "fit_rows": 169,
+  "timestamp_utc": "2026-10-11T11:44:23.797615+00:00",
+  "elapsed_seconds": 0.08865340000011201,
+  "processed_hash": "2b5d6aadec56946452c054a6c165ae7affdc87562b9b68dfbaf1c89c5a0c577a",
+  "split_hash": "f06680bfe03dab2b9f5b958d4985b3cbcc457aa3479e2bb576e17f40c47cfbf8",
+  "selected_without_test": true
+}

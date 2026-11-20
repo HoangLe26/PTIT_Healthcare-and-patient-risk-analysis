@@ -1,0 +1,14 @@
+{
+  "status": "completed",
+  "model": "xgboost",
+  "background_n": null,
+  "training_pool_n": 59372,
+  "additivity_max_abs_error": 8.344650268554688e-07,
+  "case_n": 6,
+  "background_source": "implicit training node cover from trees fitted only on fit development",
+  "method": "XGBoost native exact TreeSHAP (pred_contribs=True)",
+  "seed": 48,
+  "seconds": 1.0269631999999547,
+  "units": "raw log-odds; before post-hoc calibration",
+  "limitation": "Case-selected mean absolute SHAP is not population-level importance. Correlated features and interventions not causal."
+}
