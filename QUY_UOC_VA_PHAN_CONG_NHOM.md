@@ -63,6 +63,16 @@ Hoàng triển khai hàm Conformal dùng chung, kiểm tra thứ tự hai lớp 
 
 Tài liệu phương pháp: [Angelopoulos và Bates, nhập môn Conformal Prediction](https://arxiv.org/abs/2107.07511).
 
+### File dùng chung và cách bàn giao
+
+| File | Ai dùng và dùng để làm gì? |
+|---|---|
+| [conformal_prediction.py](Conformal_Prediction/conformal_prediction.py) | Hoàng phụ trách hàm `summarize(y_cal, p_cal, y_test, p_test)`. Tùng, Hoàng và Khải truyền nhãn thật cùng xác suất lớp 1 của mô hình mình vào hàm. Mỗi lần gọi cho một dataset trả về hai dòng, tương ứng 90% và 95%. |
+| [run_conformal_reference.py](Conformal_Prediction/run_conformal_reference.py) | Cả ba tham khảo cách đọc bản chia, chọn lượt theo bệnh nhân ở Diabetes và lấy đúng cột xác suất lớp 1. Chạy `python Conformal_Prediction/run_conformal_reference.py` để tái tạo kết quả với các tham số cố định trong script. |
+| [conformal_reference_results.csv](Conformal_Prediction/conformal_reference_results.csv) | Hoàng dùng bảng tham chiếu 12 dòng để đối chiếu cấu trúc kết quả. Mỗi dòng ứng với một dataset, một thuật toán và một mức bao phủ. |
+
+Khi đã chốt tham số, mỗi người gửi Hoàng **4 dòng kết quả** từ mô hình cuối của mình (2 dataset × 2 mức bao phủ), kèm tên dataset và cấu hình mô hình. Hoàng ghép thành bảng chính thức và lưu riêng để cả nhóm có thể đối chiếu với bảng tham chiếu.
+
 ## 6. Trình tự bàn giao và tiêu chí hoàn thành
 
 1. **Trước huấn luyện:** Tùng bàn giao danh sách dòng, đặc trưng, fold và kết quả kiểm tra theo bệnh nhân. Hoàng và Khải có thể thử các hàm đánh giá trên xác suất giả lập trong lúc chờ.

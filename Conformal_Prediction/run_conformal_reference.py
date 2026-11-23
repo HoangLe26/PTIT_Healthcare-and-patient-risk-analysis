@@ -1,4 +1,4 @@
-"""Run with python run_conformal_reference.py from any directory.
+"""Run with python Conformal_Prediction/run_conformal_reference.py from the project root.
 
 Reference models with fixed parameters. Members can pass probabilities from
 their final models to conformal_prediction.summarize using the same subsets.
@@ -15,7 +15,8 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from conformal_prediction import summarize
 
-ROOT = Path(__file__).resolve().parent
+OUTPUT_DIR = Path(__file__).resolve().parent
+ROOT = OUTPUT_DIR.parent
 NUMERIC = {
     "heart": "age trestbps chol thalach oldpeak",
     "readmission": "time_in_hospital num_lab_procedures num_procedures num_medications number_outpatient number_emergency number_inpatient number_diagnoses",
@@ -58,5 +59,5 @@ def run(dataset):
 
 if __name__ == "__main__":
     results = pd.DataFrame(run("heart") + run("readmission"))
-    results.to_csv(ROOT / "conformal_reference_results.csv", index=False)
+    results.to_csv(OUTPUT_DIR / "conformal_reference_results.csv", index=False)
     print(results.to_string(index=False))
