@@ -1,0 +1,16 @@
+{
+  "dataset": "readmission",
+  "model": "CatBoost_d4_lr0.1_l2_3",
+  "best_params": {
+    "depth": 4,
+    "learning_rate": 0.1,
+    "l2_leaf_reg": 3
+  },
+  "best_cv_ap": 0.2265384588471527,
+  "best_threshold_f2": 0.07671943743450303,
+  "q_90": 0.320764769674984,
+  "q_95": 0.8991188486604024,
+  "n_features": 44,
+  "n_cat_features": 36,
+  "runtime_seconds": 300.88
+}

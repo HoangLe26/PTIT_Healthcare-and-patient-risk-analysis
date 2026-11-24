@@ -1,0 +1,16 @@
+{
+  "dataset": "heart",
+  "model": "CatBoost_d6_lr0.1_l2_5",
+  "best_params": {
+    "depth": 6,
+    "learning_rate": 0.1,
+    "l2_leaf_reg": 5
+  },
+  "best_cv_roc_auc": 0.9129093567251463,
+  "best_threshold_f2": 0.00921158621017995,
+  "q_90": 0.9788110006489783,
+  "q_95": 0.999502364389858,
+  "n_features": 13,
+  "n_cat_features": 8,
+  "runtime_seconds": 91.21
+}

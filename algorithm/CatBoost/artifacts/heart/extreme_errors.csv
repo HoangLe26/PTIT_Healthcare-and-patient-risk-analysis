@@ -1,0 +1,2 @@
+error_type,sample_id,y_true,y_prob,threshold,y_pred,conformal_decision_90,conformal_decision_95,age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal,y,row_id,patient_nbr
+FP,92,0,0.9838057834607674,0.00921158621017995,1,1,Phân vân,62.0,1.0,3.0,130.0,231.0,0.0,0.0,146.0,0.0,1.8,2.0,3.0,7.0,0.0,92.0,92.0

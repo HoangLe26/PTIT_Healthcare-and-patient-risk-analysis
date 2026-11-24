@@ -1,0 +1,2 @@
+Mô hình,Average Precision (Chính),ROC-AUC,Ngưỡng F2,F2 Score,Recall / Sens,Precision,Specificity,Tỷ lệ gắn cờ,Brier Score,TP,FP,TN,FN
+CatBoost (Khải),0.2340,0.6695,0.0767,0.4290,0.7960,0.1508,0.4131,0.6111,0.0973,1846,10395,7317,473

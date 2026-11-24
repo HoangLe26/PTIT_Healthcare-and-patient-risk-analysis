@@ -5,3 +5,5 @@ tmp/
 *.egg-info/
 .ipynb_checkpoints/
 
+
+catboost_info/
