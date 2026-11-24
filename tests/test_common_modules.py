@@ -1,13 +1,13 @@
 import unittest
 import numpy as np
 import pandas as pd
-from src.healthcare_ml.thresholds import find_optimal_f2_threshold
-from src.healthcare_ml.evaluation import (
+from benchmark.thresholds import find_optimal_f2_threshold
+from benchmark.evaluation import (
     compute_binary_metrics,
     build_test_prediction_table,
     extract_extreme_errors,
 )
-from src.healthcare_ml.reporting import (
+from benchmark.reporting import (
     format_comparison_table_dataset_a,
     format_comparison_table_dataset_b,
 )

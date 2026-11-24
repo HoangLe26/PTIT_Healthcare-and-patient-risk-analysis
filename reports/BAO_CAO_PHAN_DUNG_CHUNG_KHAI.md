@@ -2,7 +2,7 @@
 
 * **Người phụ trách xây dựng:** Khải
 * **Dự án:** Healthcare and Patient Risk Analysis (Bài tập lớn Học máy - PTIT)
-* **Vị trí mã nguồn:** `src/healthcare_ml/`
+* **Vị trí mã nguồn:** `benchmark/`
 * **Môi trường thực thi chuẩn:** `D:\Project\venv1\Scripts\python.exe`
 * **Trạng thái kiểm thử:** Đạt 100% (6/6 unit tests)
 
@@ -11,9 +11,9 @@
 ## 1. Mục tiêu và phạm vi
 
 Để đảm bảo kết quả thực nghiệm của 3 thành viên (**Tùng – KNN**, **Hoàng – Logistic Regression**, **Khải – CatBoost**) có tính nhất quán, có thể so sánh công bằng và không bị rò rỉ dữ liệu (Data Leakage), Khải chịu trách nhiệm thiết kế, lập trình và kiểm thử toàn bộ hệ thống tính toán dùng chung gồm:
-1. **Module chọn ngưỡng tối ưu theo độ đo y tế $F_2$** ([thresholds.py](src/healthcare_ml/thresholds.py)).
-2. **Module tính bộ chỉ số đánh giá & Ma trận nhầm lẫn** ([evaluation.py](src/healthcare_ml/evaluation.py)).
-3. **Module định dạng và ghép 2 bảng đối chiếu kết quả** ([reporting.py](src/healthcare_ml/reporting.py)).
+1. **Module chọn ngưỡng tối ưu theo độ đo y tế $F_2$** ([thresholds.py](benchmark/thresholds.py)).
+2. **Module tính bộ chỉ số đánh giá & Ma trận nhầm lẫn** ([evaluation.py](benchmark/evaluation.py)).
+3. **Module định dạng và ghép 2 bảng đối chiếu kết quả** ([reporting.py](benchmark/reporting.py)).
 
 ---
 
@@ -88,8 +88,8 @@ Bộ kiểm thử được viết tại [tests/test_common_modules.py](tests/tes
 Hai thành viên Tùng (KNN) và Hoàng (Logistic Regression) chỉ cần import và sử dụng như sau:
 
 ```python
-from src.healthcare_ml.thresholds import find_optimal_f2_threshold
-from src.healthcare_ml.evaluation import compute_binary_metrics, build_test_prediction_table
+from benchmark.thresholds import find_optimal_f2_threshold
+from benchmark.evaluation import compute_binary_metrics, build_test_prediction_table
 
 # 1. Tìm ngưỡng F2 trên tập threshold (trước khi đánh giá test)
 thresh_info = find_optimal_f2_threshold(y_thresh, prob_thresh)
