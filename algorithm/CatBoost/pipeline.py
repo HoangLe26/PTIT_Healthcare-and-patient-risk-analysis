@@ -1,4 +1,5 @@
 import os
+import time
 import json
 import numpy as np
 import pandas as pd
@@ -22,29 +23,81 @@ from benchmark.conformal import (
 )
 
 
-def preprocess_features(df: pd.DataFrame, feature_cols: List[str], cat_cols: List[str]) -> pd.DataFrame:
-    """Chuẩn bị features cho CatBoost: điền missing và ép kiểu chuỗi cho categorical columns."""
-    X = df[feature_cols].copy()
-    for col in cat_cols:
-        X[col] = X[col].fillna("missing").astype(str)
-        
+def fit_preprocessor(
+    df_train: pd.DataFrame,
+    feature_cols: List[str],
+    cat_cols: List[str],
+) -> Dict[str, float]:
+    """
+    Học giá trị trung vị (median) cho các biến số CHỈ TRÊN TẬP HUẤN LUYỆN (chống data leakage).
+    """
     num_cols = [c for c in feature_cols if c not in cat_cols]
+    medians: Dict[str, float] = {}
     for col in num_cols:
-        X[col] = pd.to_numeric(X[col], errors="coerce")
-        if X[col].isnull().any():
-            median_val = X[col].median()
-            X[col] = X[col].fillna(median_val)
-            
+        s = pd.to_numeric(df_train[col], errors="coerce")
+        medians[col] = float(s.median()) if s.notna().any() else 0.0
+    return medians
+
+
+def transform_features(
+    df: pd.DataFrame,
+    feature_cols: List[str],
+    cat_cols: List[str],
+    medians: Dict[str, float],
+) -> pd.DataFrame:
+    """
+    Áp dụng phép điền thiếu đã học từ train:
+    - Biến số: điền trung vị đã học từ train.
+    - Biến phân loại: mã hóa riêng giá trị thiếu thành '__missing__' và ép kiểu chuỗi.
+    """
+    X = df[feature_cols].copy()
+    cat_set = set(cat_cols)
+    for col in feature_cols:
+        if col in cat_set:
+            X[col] = X[col].fillna("__missing__").replace("", "__missing__").astype(str)
+        else:
+            s = pd.to_numeric(X[col], errors="coerce")
+            X[col] = s.fillna(medians[col])
     return X
+
+
+def save_extreme_errors(
+    df_raw_test: pd.DataFrame,
+    pred_table: pd.DataFrame,
+    id_col: str,
+    output_path: str,
+) -> Dict[str, Any]:
+    """Trích xuất và lưu 1 ca FN và 1 ca FP sai nặng nhất kèm đặc trưng bệnh nhân."""
+    ext = extract_extreme_errors(pred_table)
+    rows = []
+    for err_type, key in [("FN", "worst_fn"), ("FP", "worst_fp")]:
+        rec = ext[key]
+        if rec is not None:
+            sid = rec["sample_id"]
+            raw_row = df_raw_test[df_raw_test[id_col] == sid].iloc[0].to_dict()
+            rows.append({
+                "error_type": err_type,
+                "sample_id": sid,
+                "y_true": int(rec["y_true"]),
+                "y_prob": float(rec["y_prob"]),
+                "threshold": float(rec["threshold"]),
+                "y_pred": int(rec["y_pred"]),
+                "conformal_decision_90": rec.get("conformal_decision_90", ""),
+                "conformal_decision_95": rec.get("conformal_decision_95", ""),
+                **raw_row,
+            })
+    if rows:
+        pd.DataFrame(rows).to_csv(output_path, index=False)
+    return ext
 
 
 def train_evaluate_catboost_heart(
     output_dir: str = "algorithm/CatBoost/artifacts/heart",
 ) -> Dict[str, Any]:
-    """Huấn luyện & Đánh giá CatBoost trên Dataset A (Heart Disease) có tích hợp Conformal & Nhãn phân vân."""
+    """Huấn luyện & Đánh giá CatBoost trên Dataset A (Heart Disease) chuẩn chống leakage + Nhãn phân vân."""
+    t0 = time.perf_counter()
     os.makedirs(output_dir, exist_ok=True)
     df, splits, feature_cols, cat_cols = load_heart_data()
-    X_all = preprocess_features(df, feature_cols, cat_cols)
     y_all = df["y"].values
     
     fit_idx = splits["fit"]
@@ -52,13 +105,18 @@ def train_evaluate_catboost_heart(
     calib_idx = splits["calibration"]
     test_idx = splits["test"]
     
-    X_fit, y_fit = X_all.iloc[fit_idx], y_all[fit_idx]
-    X_thresh, y_thresh = X_all.iloc[thresh_idx], y_all[thresh_idx]
-    X_calib, y_calib = X_all.iloc[calib_idx], y_all[calib_idx]
-    X_test, y_test = X_all.iloc[test_idx], y_all[test_idx]
-    test_sample_ids = df["row_id"].iloc[test_idx].values
+    df_fit = df.iloc[fit_idx]
+    df_thresh = df.iloc[thresh_idx]
+    df_calib = df.iloc[calib_idx]
+    df_test = df.iloc[test_idx]
     
-    # 1. 5-fold Stratified CV trên tập fit
+    y_fit = y_all[fit_idx]
+    y_thresh = y_all[thresh_idx]
+    y_calib = y_all[calib_idx]
+    y_test = y_all[test_idx]
+    test_sample_ids = df_test["row_id"].values
+    
+    # 1. 5-fold Stratified CV trên tập fit (học median trong từng fold)
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     param_grid = [
         {"depth": 4, "learning_rate": 0.03, "l2_leaf_reg": 1},
@@ -76,13 +134,20 @@ def train_evaluate_catboost_heart(
     cv_records = []
     
     for params in param_grid:
-        fold_scores = []
-        for train_fold_idx, val_fold_idx in skf.split(X_fit, y_fit):
-            X_train_fold, y_train_fold = X_fit.iloc[train_fold_idx], y_fit[train_fold_idx]
-            X_val_fold, y_val_fold = X_fit.iloc[val_fold_idx], y_fit[val_fold_idx]
+        fold_val_scores = []
+        fold_train_scores = []
+        for train_fold_idx, val_fold_idx in skf.split(df_fit, y_fit):
+            df_tr = df_fit.iloc[train_fold_idx]
+            df_va = df_fit.iloc[val_fold_idx]
+            y_tr, y_va = y_fit[train_fold_idx], y_fit[val_fold_idx]
             
-            train_pool = Pool(X_train_fold, y_train_fold, cat_features=cat_cols)
-            val_pool = Pool(X_val_fold, y_val_fold, cat_features=cat_cols)
+            # Học preprocessor chỉ trên train fold (chống leakage)
+            medians_fold = fit_preprocessor(df_tr, feature_cols, cat_cols)
+            X_tr = transform_features(df_tr, feature_cols, cat_cols, medians_fold)
+            X_va = transform_features(df_va, feature_cols, cat_cols, medians_fold)
+            
+            train_pool = Pool(X_tr, y_tr, cat_features=cat_cols)
+            val_pool = Pool(X_va, y_va, cat_features=cat_cols)
             
             model = CatBoostClassifier(
                 iterations=300,
@@ -94,23 +159,40 @@ def train_evaluate_catboost_heart(
                 thread_count=2,
             )
             model.fit(train_pool, eval_set=val_pool, early_stopping_rounds=30, verbose=False)
-            val_probs = model.predict_proba(val_pool)[:, 1]
-            fold_scores.append(roc_auc_score(y_val_fold, val_probs))
+            fold_train_scores.append(roc_auc_score(y_tr, model.predict_proba(train_pool)[:, 1]))
+            fold_val_scores.append(roc_auc_score(y_va, model.predict_proba(val_pool)[:, 1]))
             
-        mean_auc = float(np.mean(fold_scores))
-        std_auc = float(np.std(fold_scores))
-        cv_records.append({**params, "mean_roc_auc": mean_auc, "std_roc_auc": std_auc})
+        mean_auc = float(np.mean(fold_val_scores))
+        std_auc = float(np.std(fold_val_scores))
+        mean_train_auc = float(np.mean(fold_train_scores))
+        cv_records.append({
+            **params,
+            "mean_train_roc_auc": mean_train_auc,
+            "mean_cv_roc_auc": mean_auc,
+            "std_cv_roc_auc": std_auc,
+        })
         
+        # Tie-breaker: ưu tiên depth nhỏ hơn, sau đó l2_leaf_reg lớn hơn
         if mean_auc > best_score + 1e-5:
             best_score = mean_auc
             best_params = params
-        elif abs(mean_auc - best_score) <= 1e-5 and params["depth"] < best_params["depth"]:
-            best_params = params
-            best_score = mean_auc
-            
+        elif abs(mean_auc - best_score) <= 1e-5:
+            if params["depth"] < best_params["depth"]:
+                best_params = params
+                best_score = mean_auc
+            elif params["depth"] == best_params["depth"] and params["l2_leaf_reg"] > best_params["l2_leaf_reg"]:
+                best_params = params
+                best_score = mean_auc
+                
     pd.DataFrame(cv_records).to_csv(os.path.join(output_dir, "cv_results.csv"), index=False)
     
-    # 2. Refit trên toàn bộ fit
+    # 2. Refit trên toàn bộ tập fit (học preprocessor chỉ trên fit)
+    medians_fit = fit_preprocessor(df_fit, feature_cols, cat_cols)
+    X_fit = transform_features(df_fit, feature_cols, cat_cols, medians_fit)
+    X_thresh = transform_features(df_thresh, feature_cols, cat_cols, medians_fit)
+    X_calib = transform_features(df_calib, feature_cols, cat_cols, medians_fit)
+    X_test = transform_features(df_test, feature_cols, cat_cols, medians_fit)
+    
     full_fit_pool = Pool(X_fit, y_fit, cat_features=cat_cols)
     final_model = CatBoostClassifier(
         iterations=300,
@@ -138,19 +220,17 @@ def train_evaluate_catboost_heart(
     test_pool = Pool(X_test, y_test, cat_features=cat_cols)
     test_probs = final_model.predict_proba(test_pool)[:, 1]
     
-    # Tính ngưỡng quantile theo code mẫu Conformal
     q_90 = calibrate(y_calib, calib_probs, 0.90)
     q_95 = calibrate(y_calib, calib_probs, 0.95)
     
-    # Bảng tổng kết Conformal (theo chuẩn nhóm)
+    model_tag = f"CatBoost_d{best_params['depth']}_lr{best_params['learning_rate']}_l2_{best_params['l2_leaf_reg']}"
     conformal_summary_rows = summarize_conformal(y_calib, calib_probs, y_test, test_probs, levels=(0.90, 0.95))
     conformal_df = pd.DataFrame([
-        dict(dataset="heart", model="CatBoost", **row)
+        dict(dataset="heart", model=model_tag, **row)
         for row in conformal_summary_rows
     ])
     conformal_df.to_csv(os.path.join(output_dir, "conformal_results.csv"), index=False)
     
-    # Gán nhãn Conformal và nhãn phân vân cho từng mẫu test
     sets_90, labels_90 = assign_conformal_prediction_labels(test_probs, q_90, label_0_name="0", label_1_name="1", ambiguous_name="Phân vân")
     sets_95, labels_95 = assign_conformal_prediction_labels(test_probs, q_95, label_0_name="0", label_1_name="1", ambiguous_name="Phân vân")
     
@@ -169,11 +249,29 @@ def train_evaluate_catboost_heart(
     )
     pred_table.to_csv(os.path.join(output_dir, "test_predictions.csv"), index=False)
     
+    ext_errors = save_extreme_errors(df_test, pred_table, "row_id", os.path.join(output_dir, "extreme_errors.csv"))
+    
     feat_imp = pd.DataFrame({
         "feature": feature_cols,
         "importance": final_model.get_feature_importance(),
     }).sort_values(by="importance", ascending=False)
     feat_imp.to_csv(os.path.join(output_dir, "feature_importance.csv"), index=False)
+    
+    runtime_sec = round(time.perf_counter() - t0, 2)
+    run_meta = {
+        "dataset": "heart",
+        "model": model_tag,
+        "best_params": best_params,
+        "best_cv_roc_auc": best_score,
+        "best_threshold_f2": best_threshold,
+        "q_90": float(q_90),
+        "q_95": float(q_95),
+        "n_features": len(feature_cols),
+        "n_cat_features": len(cat_cols),
+        "runtime_seconds": runtime_sec,
+    }
+    with open(os.path.join(output_dir, "run_summary.json"), "w", encoding="utf-8") as f:
+        json.dump(run_meta, f, indent=2, ensure_ascii=False)
     
     return {
         "best_params": best_params,
@@ -183,30 +281,40 @@ def train_evaluate_catboost_heart(
         "q_90": q_90,
         "q_95": q_95,
         "feature_importance": feat_imp,
+        "extreme_errors": ext_errors,
+        "runtime_seconds": runtime_sec,
     }
 
 
 def train_evaluate_catboost_readmission(
     output_dir: str = "algorithm/CatBoost/artifacts/readmission",
 ) -> Dict[str, Any]:
-    """Huấn luyện & Đánh giá CatBoost trên Dataset B (Diabetes Readmission) có tích hợp Conformal & Nhãn phân vân."""
+    """Huấn luyện & Đánh giá CatBoost trên Dataset B (Diabetes Readmission) chuẩn chống leakage + Nhãn phân vân."""
+    t0 = time.perf_counter()
     os.makedirs(output_dir, exist_ok=True)
     df, splits, feature_cols, cat_cols = load_readmission_data()
-    X_all = preprocess_features(df, feature_cols, cat_cols)
     y_all = df["y"].values
     patient_ids = df["patient_nbr"].values
-    encounter_ids = df["encounter_id"].values
     
     fit_idx = splits["fit"]
     thresh_idx = splits["threshold"]
     calib_idx = splits["calibration"]
     test_idx = splits["test"]
     
-    X_fit, y_fit = X_all.iloc[fit_idx], y_all[fit_idx]
+    df_fit = df.iloc[fit_idx]
+    df_thresh = df.iloc[thresh_idx]
+    df_calib = df.iloc[calib_idx]
+    df_test = df.iloc[test_idx]
+    
+    # Kiểm tra rò rỉ bệnh nhân giữa các tập
+    assert set(df_fit["patient_nbr"]).isdisjoint(set(df_test["patient_nbr"])), "Leakage fit-test!"
+    assert set(df_calib["patient_nbr"]).isdisjoint(set(df_test["patient_nbr"])), "Leakage calib-test!"
+    
+    y_fit = y_all[fit_idx]
     patient_fit = patient_ids[fit_idx]
-    X_thresh, y_thresh = X_all.iloc[thresh_idx], y_all[thresh_idx]
-    X_test, y_test = X_all.iloc[test_idx], y_all[test_idx]
-    test_sample_ids = encounter_ids[test_idx]
+    y_thresh = y_all[thresh_idx]
+    y_test = y_all[test_idx]
+    test_sample_ids = df_test["encounter_id"].values
     
     # 1. 3-fold StratifiedGroupKFold theo bệnh nhân trên tập fit
     sgkf = StratifiedGroupKFold(n_splits=3, shuffle=True, random_state=42)
@@ -222,13 +330,21 @@ def train_evaluate_catboost_readmission(
     cv_records = []
     
     for params in param_grid:
-        fold_scores = []
-        for train_fold_idx, val_fold_idx in sgkf.split(X_fit, y_fit, groups=patient_fit):
-            X_train_fold, y_train_fold = X_fit.iloc[train_fold_idx], y_fit[train_fold_idx]
-            X_val_fold, y_val_fold = X_fit.iloc[val_fold_idx], y_fit[val_fold_idx]
+        fold_val_scores = []
+        fold_train_scores = []
+        for train_fold_idx, val_fold_idx in sgkf.split(df_fit, y_fit, groups=patient_fit):
+            df_tr = df_fit.iloc[train_fold_idx]
+            df_va = df_fit.iloc[val_fold_idx]
+            y_tr, y_va = y_fit[train_fold_idx], y_fit[val_fold_idx]
             
-            train_pool = Pool(X_train_fold, y_train_fold, cat_features=cat_cols)
-            val_pool = Pool(X_val_fold, y_val_fold, cat_features=cat_cols)
+            assert set(df_tr["patient_nbr"]).isdisjoint(set(df_va["patient_nbr"])), "Leakage trong fold CV!"
+            
+            medians_fold = fit_preprocessor(df_tr, feature_cols, cat_cols)
+            X_tr = transform_features(df_tr, feature_cols, cat_cols, medians_fold)
+            X_va = transform_features(df_va, feature_cols, cat_cols, medians_fold)
+            
+            train_pool = Pool(X_tr, y_tr, cat_features=cat_cols)
+            val_pool = Pool(X_va, y_va, cat_features=cat_cols)
             
             model = CatBoostClassifier(
                 iterations=250,
@@ -240,12 +356,18 @@ def train_evaluate_catboost_readmission(
                 thread_count=4,
             )
             model.fit(train_pool, eval_set=val_pool, early_stopping_rounds=25, verbose=False)
-            val_probs = model.predict_proba(val_pool)[:, 1]
-            fold_scores.append(average_precision_score(y_val_fold, val_probs))
+            fold_train_scores.append(average_precision_score(y_tr, model.predict_proba(train_pool)[:, 1]))
+            fold_val_scores.append(average_precision_score(y_va, model.predict_proba(val_pool)[:, 1]))
             
-        mean_ap = float(np.mean(fold_scores))
-        std_ap = float(np.std(fold_scores))
-        cv_records.append({**params, "mean_average_precision": mean_ap, "std_average_precision": std_ap})
+        mean_ap = float(np.mean(fold_val_scores))
+        std_ap = float(np.std(fold_val_scores))
+        mean_train_ap = float(np.mean(fold_train_scores))
+        cv_records.append({
+            **params,
+            "mean_train_ap": mean_train_ap,
+            "mean_cv_ap": mean_ap,
+            "std_cv_ap": std_ap,
+        })
         
         if mean_ap > best_score + 1e-5:
             best_score = mean_ap
@@ -256,7 +378,12 @@ def train_evaluate_catboost_readmission(
             
     pd.DataFrame(cv_records).to_csv(os.path.join(output_dir, "cv_results.csv"), index=False)
     
-    # 2. Refit trên toàn bộ fit
+    # 2. Refit trên toàn bộ tập fit
+    medians_fit = fit_preprocessor(df_fit, feature_cols, cat_cols)
+    X_fit = transform_features(df_fit, feature_cols, cat_cols, medians_fit)
+    X_thresh = transform_features(df_thresh, feature_cols, cat_cols, medians_fit)
+    X_test_full = transform_features(df_test, feature_cols, cat_cols, medians_fit)
+    
     full_fit_pool = Pool(X_fit, y_fit, cat_features=cat_cols)
     final_model = CatBoostClassifier(
         iterations=300,
@@ -277,31 +404,32 @@ def train_evaluate_catboost_readmission(
     if "curve_df" in opt_thresh_info:
         opt_thresh_info["curve_df"].to_csv(os.path.join(output_dir, "threshold_curve.csv"), index=False)
         
-    # 4. Conformal Prediction trên bệnh nhân độc lập (theo code mẫu chuẩn nhóm)
-    # Lọc encounter_id nhỏ nhất cho mỗi bệnh nhân trong calibration và test
-    cal_df = df.iloc[calib_idx].sort_values("encounter_id").drop_duplicates("patient_nbr")
-    test_sub_df = df.iloc[test_idx].sort_values("encounter_id").drop_duplicates("patient_nbr")
-    assert set(cal_df["patient_nbr"]).isdisjoint(set(test_sub_df["patient_nbr"])), "Leakage giữa calib và test!"
+    # 4. Conformal Prediction trên bệnh nhân độc lập (encounter_id nhỏ nhất mỗi bệnh nhân)
+    cal_sub_df = df_calib.sort_values("encounter_id").drop_duplicates("patient_nbr")
+    test_sub_df = df_test.sort_values("encounter_id").drop_duplicates("patient_nbr")
+    assert set(cal_sub_df["patient_nbr"]).isdisjoint(set(test_sub_df["patient_nbr"])), "Leakage calib-test!"
     
-    cal_pool = Pool(X_all.iloc[cal_df.index], cal_df["y"].values, cat_features=cat_cols)
-    test_sub_pool = Pool(X_all.iloc[test_sub_df.index], test_sub_df["y"].values, cat_features=cat_cols)
+    X_cal_sub = transform_features(cal_sub_df, feature_cols, cat_cols, medians_fit)
+    X_test_sub = transform_features(test_sub_df, feature_cols, cat_cols, medians_fit)
     
-    cal_probs = final_model.predict_proba(cal_pool)[:, 1]
-    test_sub_probs = final_model.predict_proba(test_sub_pool)[:, 1]
+    cal_probs = final_model.predict_proba(Pool(X_cal_sub, cat_features=cat_cols))[:, 1]
+    test_sub_probs = final_model.predict_proba(Pool(X_test_sub, cat_features=cat_cols))[:, 1]
     
-    q_90 = calibrate(cal_df["y"].values, cal_probs, 0.90)
-    q_95 = calibrate(cal_df["y"].values, cal_probs, 0.95)
+    q_90 = calibrate(cal_sub_df["y"].values, cal_probs, 0.90)
+    q_95 = calibrate(cal_sub_df["y"].values, cal_probs, 0.95)
     
-    conformal_summary_rows = summarize_conformal(cal_df["y"].values, cal_probs, test_sub_df["y"].values, test_sub_probs, levels=(0.90, 0.95))
+    model_tag = f"CatBoost_d{best_params['depth']}_lr{best_params['learning_rate']}_l2_{best_params['l2_leaf_reg']}"
+    conformal_summary_rows = summarize_conformal(
+        cal_sub_df["y"].values, cal_probs, test_sub_df["y"].values, test_sub_probs, levels=(0.90, 0.95)
+    )
     conformal_df = pd.DataFrame([
-        dict(dataset="readmission", model="CatBoost", **row)
+        dict(dataset="readmission", model=model_tag, **row)
         for row in conformal_summary_rows
     ])
     conformal_df.to_csv(os.path.join(output_dir, "conformal_results.csv"), index=False)
     
     # 5. Đánh giá trên toàn bộ 20.031 lượt test & Gán nhãn phân vân
-    test_full_pool = Pool(X_test, y_test, cat_features=cat_cols)
-    test_full_probs = final_model.predict_proba(test_full_pool)[:, 1]
+    test_full_probs = final_model.predict_proba(Pool(X_test_full, cat_features=cat_cols))[:, 1]
     
     sets_90, labels_90 = assign_conformal_prediction_labels(test_full_probs, q_90, label_0_name="0", label_1_name="1", ambiguous_name="Phân vân")
     sets_95, labels_95 = assign_conformal_prediction_labels(test_full_probs, q_95, label_0_name="0", label_1_name="1", ambiguous_name="Phân vân")
@@ -320,11 +448,29 @@ def train_evaluate_catboost_readmission(
     )
     pred_table.to_csv(os.path.join(output_dir, "test_predictions.csv"), index=False)
     
+    ext_errors = save_extreme_errors(df_test, pred_table, "encounter_id", os.path.join(output_dir, "extreme_errors.csv"))
+    
     feat_imp = pd.DataFrame({
         "feature": feature_cols,
         "importance": final_model.get_feature_importance(),
     }).sort_values(by="importance", ascending=False)
     feat_imp.to_csv(os.path.join(output_dir, "feature_importance.csv"), index=False)
+    
+    runtime_sec = round(time.perf_counter() - t0, 2)
+    run_meta = {
+        "dataset": "readmission",
+        "model": model_tag,
+        "best_params": best_params,
+        "best_cv_ap": best_score,
+        "best_threshold_f2": best_threshold,
+        "q_90": float(q_90),
+        "q_95": float(q_95),
+        "n_features": len(feature_cols),
+        "n_cat_features": len(cat_cols),
+        "runtime_seconds": runtime_sec,
+    }
+    with open(os.path.join(output_dir, "run_summary.json"), "w", encoding="utf-8") as f:
+        json.dump(run_meta, f, indent=2, ensure_ascii=False)
     
     return {
         "best_params": best_params,
@@ -334,4 +480,6 @@ def train_evaluate_catboost_readmission(
         "q_90": q_90,
         "q_95": q_95,
         "feature_importance": feat_imp,
+        "extreme_errors": ext_errors,
+        "runtime_seconds": runtime_sec,
     }

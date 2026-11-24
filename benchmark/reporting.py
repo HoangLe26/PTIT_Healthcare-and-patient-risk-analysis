@@ -49,6 +49,6 @@ def format_comparison_table_dataset_b(results: Dict[str, Dict[str, Any]]) -> pd.
             "TP": m.get("tp", 0),
             "FP": m.get("fp", 0),
             "TN": m.get("tn", 0),
-            "fn": m.get("fn", 0),
+            "FN": m.get("fn", 0),
         })
     return pd.DataFrame(rows)

@@ -4,65 +4,64 @@ import numpy as np
 from typing import Tuple, Dict, Any, List
 
 
+NUMERIC_COLS = {
+    "heart": ["age", "trestbps", "chol", "thalach", "oldpeak"],
+    "readmission": [
+        "time_in_hospital",
+        "num_lab_procedures",
+        "num_procedures",
+        "num_medications",
+        "number_outpatient",
+        "number_emergency",
+        "number_inpatient",
+        "number_diagnoses",
+    ],
+}
+
+
 def load_heart_data(
     data_path: str = "data/processed/heart.csv",
     splits_path: str = "data/splits/heart.json",
+    meta_path: str = "data/metadata/heart_feature_availability.csv",
 ) -> Tuple[pd.DataFrame, Dict[str, List[int]], List[str], List[str]]:
     """
     Tải dữ liệu Heart Disease Cleveland và danh sách splits.
-    
-    Returns:
-    --------
-    df : pd.DataFrame
-    splits : dict of {split_name: list of row indices}
-    feature_cols : list of feature column names (13 features)
-    cat_cols : list of categorical feature names
+    Dùng đúng quy tắc đọc dữ liệu của nhóm (keep_default_na=False, na_values=[''])
+    và lấy danh sách biến từ metadata/heart_feature_availability.csv.
     """
-    df = pd.read_csv(data_path)
+    df = pd.read_csv(data_path, keep_default_na=False, na_values=[""], low_memory=False)
     with open(splits_path, "r", encoding="utf-8") as f:
         splits = json.load(f)
-        
-    feature_cols = [
-        "age", "sex", "cp", "trestbps", "chol", "fbs", "restecg",
-        "thalach", "exang", "oldpeak", "slope", "ca", "thal"
-    ]
-    # Các cột phân loại theo data dictionary
-    cat_cols = ["sex", "cp", "fbs", "restecg", "exang", "slope", "ca", "thal"]
+    meta = pd.read_csv(meta_path)
+    feature_cols = meta.loc[meta["include"], "feature"].tolist()
+    num_cols = set(NUMERIC_COLS["heart"])
+    cat_cols = [c for c in feature_cols if c not in num_cols]
     
+    # Đảm bảo cột y là số nguyên 0/1
+    df["y"] = pd.to_numeric(df["y"]).astype(int)
     return df, splits, feature_cols, cat_cols
 
 
 def load_readmission_data(
     data_path: str = "data/processed/readmission.csv",
     splits_path: str = "data/splits/readmission.json",
+    meta_path: str = "data/metadata/readmission_feature_availability.csv",
 ) -> Tuple[pd.DataFrame, Dict[str, List[int]], List[str], List[str]]:
     """
     Tải dữ liệu Diabetes Readmission và danh sách splits.
-    Loại bỏ các cột theo đúng quy ước:
-    - encounter_id, patient_nbr, weight, payer_code, medical_specialty, y, row_id.
-    
-    Returns:
-    --------
-    df : pd.DataFrame
-    splits : dict of {split_name: list of row indices}
-    feature_cols : list of feature column names
-    cat_cols : list of categorical feature names
+    Dùng keep_default_na=False, na_values=[''] để bảo toàn chuỗi 'None' có ý nghĩa
+    trong max_glu_serum và A1Cresult (khớp 100% với Conformal_Prediction/run_conformal_reference.py).
     """
-    df = pd.read_csv(data_path)
+    df = pd.read_csv(data_path, keep_default_na=False, na_values=[""], low_memory=False)
     with open(splits_path, "r", encoding="utf-8") as f:
         splits = json.load(f)
-        
-    cols_to_exclude = {
-        "encounter_id", "patient_nbr", "weight", "payer_code",
-        "medical_specialty", "y", "row_id"
-    }
-    feature_cols = [c for c in df.columns if c not in cols_to_exclude]
+    meta = pd.read_csv(meta_path)
+    feature_cols = meta.loc[meta["include"], "feature"].tolist()
+    num_cols = set(NUMERIC_COLS["readmission"])
+    cat_cols = [c for c in feature_cols if c not in num_cols]
     
-    # Xác định categorical columns: kiểu object hoặc ID phân loại
-    id_categoricals = {"admission_type_id", "discharge_disposition_id", "admission_source_id"}
-    cat_cols = [
-        c for c in feature_cols
-        if df[c].dtype == "object" or c in id_categoricals
-    ]
-    
+    # Đảm bảo cột y và các ID là số nguyên
+    df["y"] = pd.to_numeric(df["y"]).astype(int)
+    df["encounter_id"] = pd.to_numeric(df["encounter_id"]).astype(int)
+    df["patient_nbr"] = pd.to_numeric(df["patient_nbr"]).astype(int)
     return df, splits, feature_cols, cat_cols
