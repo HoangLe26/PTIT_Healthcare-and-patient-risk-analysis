@@ -2,6 +2,16 @@
 
 Bài tập lớn Machine Learning: phân loại bệnh tim Cleveland và nguy cơ tái nhập viện `<30` ngày tại thời điểm xuất viện. Pipeline chống leakage, calibration/threshold độc lập và phép chia theo bệnh nhân ở readmission. Nội dung môn học được đối chiếu sáu PDF trong `Slide/`.
 
+## Chạy và đọc kết quả Conformal Prediction
+
+| File | Cách sử dụng |
+|---|---|
+| [conformal_prediction.py](Conformal_Prediction/conformal_prediction.py) | Từ thư mục dự án, dùng `from Conformal_Prediction.conformal_prediction import summarize`, rồi gọi hàm `summarize(y_cal, p_cal, y_test, p_test)` để đánh giá mô hình đã huấn luyện ở mức bao phủ 90% và 95%. Hai vector `p` chứa xác suất của lớp 1 theo đúng thứ tự nhãn. |
+| [run_conformal_reference.py](Conformal_Prediction/run_conformal_reference.py) | Chạy `python Conformal_Prediction/run_conformal_reference.py` từ thư mục dự án để huấn luyện ba thuật toán với tham số cố định trên hai dataset và ghi lại bảng CSV. |
+| [conformal_reference_results.csv](Conformal_Prediction/conformal_reference_results.csv) | Bảng tham chiếu gồm 12 dòng. Đọc `target` là mức bao phủ mục tiêu, `coverage` là tỷ lệ tập dự đoán chứa nhãn đúng và `ambiguous` là tỷ lệ hồ sơ nhận cả hai nhãn. Các tỷ lệ dùng thang 0–1. |
+
+Khi nhóm chốt mô hình cuối, mỗi thành viên dùng cùng hàm trên dự đoán của mình và gửi kết quả cho Hoàng theo [quy ước và phân công nhóm](QUY_UOC_VA_PHAN_CONG_NHOM.md).
+
 ## Đọc kết quả
 
 - `reports/final_report.md` / `reports/final_report.pdf`: báo cáo chính.
@@ -58,7 +68,7 @@ Demo dùng artifact đã lưu, không train lại. Đầu vào mẫu chỉ giúp
 - Full nghĩa là không subsample cohort chính. Random search 12 cấu hình Heart, 6 readmission; folds 5/3, tối đa hai luồng xử lý.
 - Gaussian models dùng numerical-only; bảng ghi feature_set để không nhầm thêm thông tin với thuật toán tốt hơn.
 - Bootstrap fixed test predictions không chứa uncertainty từ model selection/retraining. Readmission resample toàn bệnh nhân với multiplicity.
-- Conformal chỉ thực nghiệm Heart; giả định exchangeability, không bảo đảm riêng từng bệnh nhân.
+- Đợt thực nghiệm ban đầu áp dụng Conformal cho Heart. Script tham chiếu của nhóm đánh giá cả Cleveland và Diabetes. Với Diabetes, script lấy lượt có `encounter_id` nhỏ nhất của mỗi bệnh nhân trong từng tập hiệu chỉnh và test.
 
 ## Kiểm tra và nguồn
 
