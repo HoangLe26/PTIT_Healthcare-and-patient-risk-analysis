@@ -13,6 +13,12 @@ from .reporting import (
     format_comparison_table_dataset_b,
 )
 from .data_loader import load_heart_data, load_readmission_data
+from .conformal import (
+    calibrate,
+    prediction_sets,
+    assign_conformal_prediction_labels,
+    summarize as summarize_conformal,
+)
 
 __all__ = [
     "find_optimal_f2_threshold",
@@ -23,4 +29,8 @@ __all__ = [
     "format_comparison_table_dataset_b",
     "load_heart_data",
     "load_readmission_data",
+    "calibrate",
+    "prediction_sets",
+    "assign_conformal_prediction_labels",
+    "summarize_conformal",
 ]

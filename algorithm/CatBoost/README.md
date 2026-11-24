@@ -35,7 +35,22 @@ CatBoost là thuật toán **Gradient Boosting trên cây quyết định đối
 
 ---
 
-## 3. Lệnh chạy thực nghiệm
+## 3. Đánh giá Split Conformal Prediction & Nhãn phân vân
+
+Thay vì ép mô hình phải đưa ra nhãn dứt khoát $0$ hoặc $1$ đối với những ca bệnh phức tạp, Conformal Prediction cho phép mô hình gán **"Nhãn phân vân"** (Ambiguous Prediction Set $\{0, 1\}$) để khuyến nghị bác sĩ thăm khám kỹ hơn:
+
+| Bộ dữ liệu | Mức tin cậy mục tiêu | Ngưỡng quantile $q$ | Độ bao phủ thực tế | Đơn nhãn (0 hoặc 1) | **Nhãn phân vân** ({0, 1}) | Tập rỗng ({}) |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Heart Disease** | 90% | 0.9788 | **96.72%** | 44.26% | **55.74%** | 0.00% |
+| **Heart Disease** | 95% | 0.9995 | **100.00%** | 1.64% | **98.36%** | 0.00% |
+| **Readmission** | 90% | 0.3115 | **90.26%** | 98.85% | **0.00%** | 1.15% |
+| **Readmission** | 95% | 0.8989 | **95.26%** | 70.93% | **29.07%** | 0.00% |
+
+* Các cột nhãn Conformal (`conformal_set_90`, `conformal_decision_90`, `conformal_set_95`, `conformal_decision_95`) đã được lưu chi tiết cho từng bệnh nhân tại file `test_predictions.csv`.
+
+---
+
+## 4. Lệnh chạy thực nghiệm
 Từ thư mục gốc dự án:
 ```powershell
 & "D:\Project\venv1\Scripts\python.exe" algorithm/CatBoost/run_catboost.py

@@ -119,10 +119,15 @@ def build_test_prediction_table(
     y_true: Union[np.ndarray, List[int]],
     y_prob: Union[np.ndarray, List[float]],
     threshold: float,
+    conformal_sets_90: Optional[List[str]] = None,
+    conformal_labels_90: Optional[List[str]] = None,
+    conformal_sets_95: Optional[List[str]] = None,
+    conformal_labels_95: Optional[List[str]] = None,
 ) -> pd.DataFrame:
     """
     Tạo bảng dự đoán mẫu test chuẩn hóa theo quy ước nhóm (dòng 50 QUY_UOC_VA_PHAN_CONG_NHOM.md):
     Gồm ID dòng, nhãn thật, xác suất lớp dương, ngưỡng, nhãn dự đoán và loại kết quả TP/FP/TN/FN.
+    Bổ sung các cột Conformal Prediction và 'NHÃN PHÂN VÂN' ở mức 90% và 95%.
     """
     y_true = np.asarray(y_true).astype(int)
     y_prob = np.asarray(y_prob).astype(float)
@@ -141,14 +146,26 @@ def build_test_prediction_table(
         else:
             result_types.append("UNKNOWN")
             
-    df = pd.DataFrame({
+    data_dict = {
         "sample_id": sample_ids,
         "y_true": y_true,
         "y_prob": y_prob,
         "threshold": threshold,
         "y_pred": y_pred,
         "result_type": result_types,
-    })
+    }
+    
+    if conformal_sets_90 is not None:
+        data_dict["conformal_set_90"] = conformal_sets_90
+    if conformal_labels_90 is not None:
+        data_dict["conformal_decision_90"] = conformal_labels_90
+        
+    if conformal_sets_95 is not None:
+        data_dict["conformal_set_95"] = conformal_sets_95
+    if conformal_labels_95 is not None:
+        data_dict["conformal_decision_95"] = conformal_labels_95
+        
+    df = pd.DataFrame(data_dict)
     return df
 
 

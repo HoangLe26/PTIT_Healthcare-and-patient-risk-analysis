@@ -14,6 +14,12 @@ from benchmark.evaluation import (
     build_test_prediction_table,
     extract_extreme_errors,
 )
+from benchmark.conformal import (
+    calibrate,
+    prediction_sets,
+    assign_conformal_prediction_labels,
+    summarize as summarize_conformal,
+)
 
 
 def preprocess_features(df: pd.DataFrame, feature_cols: List[str], cat_cols: List[str]) -> pd.DataFrame:
@@ -35,7 +41,7 @@ def preprocess_features(df: pd.DataFrame, feature_cols: List[str], cat_cols: Lis
 def train_evaluate_catboost_heart(
     output_dir: str = "algorithm/CatBoost/artifacts/heart",
 ) -> Dict[str, Any]:
-    """Huấn luyện & Đánh giá CatBoost trên Dataset A (Heart Disease)."""
+    """Huấn luyện & Đánh giá CatBoost trên Dataset A (Heart Disease) có tích hợp Conformal & Nhãn phân vân."""
     os.makedirs(output_dir, exist_ok=True)
     df, splits, feature_cols, cat_cols = load_heart_data()
     X_all = preprocess_features(df, feature_cols, cat_cols)
@@ -43,10 +49,12 @@ def train_evaluate_catboost_heart(
     
     fit_idx = splits["fit"]
     thresh_idx = splits["threshold"]
+    calib_idx = splits["calibration"]
     test_idx = splits["test"]
     
     X_fit, y_fit = X_all.iloc[fit_idx], y_all[fit_idx]
     X_thresh, y_thresh = X_all.iloc[thresh_idx], y_all[thresh_idx]
+    X_calib, y_calib = X_all.iloc[calib_idx], y_all[calib_idx]
     X_test, y_test = X_all.iloc[test_idx], y_all[test_idx]
     test_sample_ids = df["row_id"].iloc[test_idx].values
     
@@ -123,12 +131,42 @@ def train_evaluate_catboost_heart(
     if "curve_df" in opt_thresh_info:
         opt_thresh_info["curve_df"].to_csv(os.path.join(output_dir, "threshold_curve.csv"), index=False)
         
-    # 4. Đánh giá trên test
+    # 4. Hiệu chuẩn Conformal trên calibration & Tính toán nhãn phân vân
+    calib_pool = Pool(X_calib, y_calib, cat_features=cat_cols)
+    calib_probs = final_model.predict_proba(calib_pool)[:, 1]
+    
     test_pool = Pool(X_test, y_test, cat_features=cat_cols)
     test_probs = final_model.predict_proba(test_pool)[:, 1]
+    
+    # Tính ngưỡng quantile theo code mẫu Conformal
+    q_90 = calibrate(y_calib, calib_probs, 0.90)
+    q_95 = calibrate(y_calib, calib_probs, 0.95)
+    
+    # Bảng tổng kết Conformal (theo chuẩn nhóm)
+    conformal_summary_rows = summarize_conformal(y_calib, calib_probs, y_test, test_probs, levels=(0.90, 0.95))
+    conformal_df = pd.DataFrame([
+        dict(dataset="heart", model="CatBoost", **row)
+        for row in conformal_summary_rows
+    ])
+    conformal_df.to_csv(os.path.join(output_dir, "conformal_results.csv"), index=False)
+    
+    # Gán nhãn Conformal và nhãn phân vân cho từng mẫu test
+    sets_90, labels_90 = assign_conformal_prediction_labels(test_probs, q_90, label_0_name="0", label_1_name="1", ambiguous_name="Phân vân")
+    sets_95, labels_95 = assign_conformal_prediction_labels(test_probs, q_95, label_0_name="0", label_1_name="1", ambiguous_name="Phân vân")
+    
+    # 5. Đánh giá trên test và xuất bảng dự đoán có nhãn phân vân
     test_metrics = compute_binary_metrics(y_test, test_probs, threshold=best_threshold)
     
-    pred_table = build_test_prediction_table(test_sample_ids, y_test, test_probs, threshold=best_threshold)
+    pred_table = build_test_prediction_table(
+        sample_ids=test_sample_ids,
+        y_true=y_test,
+        y_prob=test_probs,
+        threshold=best_threshold,
+        conformal_sets_90=sets_90,
+        conformal_labels_90=labels_90,
+        conformal_sets_95=sets_95,
+        conformal_labels_95=labels_95,
+    )
     pred_table.to_csv(os.path.join(output_dir, "test_predictions.csv"), index=False)
     
     feat_imp = pd.DataFrame({
@@ -141,6 +179,9 @@ def train_evaluate_catboost_heart(
         "best_params": best_params,
         "best_threshold": best_threshold,
         "test_metrics": test_metrics,
+        "conformal_summary": conformal_df,
+        "q_90": q_90,
+        "q_95": q_95,
         "feature_importance": feat_imp,
     }
 
@@ -148,7 +189,7 @@ def train_evaluate_catboost_heart(
 def train_evaluate_catboost_readmission(
     output_dir: str = "algorithm/CatBoost/artifacts/readmission",
 ) -> Dict[str, Any]:
-    """Huấn luyện & Đánh giá CatBoost trên Dataset B (Diabetes Readmission)."""
+    """Huấn luyện & Đánh giá CatBoost trên Dataset B (Diabetes Readmission) có tích hợp Conformal & Nhãn phân vân."""
     os.makedirs(output_dir, exist_ok=True)
     df, splits, feature_cols, cat_cols = load_readmission_data()
     X_all = preprocess_features(df, feature_cols, cat_cols)
@@ -158,6 +199,7 @@ def train_evaluate_catboost_readmission(
     
     fit_idx = splits["fit"]
     thresh_idx = splits["threshold"]
+    calib_idx = splits["calibration"]
     test_idx = splits["test"]
     
     X_fit, y_fit = X_all.iloc[fit_idx], y_all[fit_idx]
@@ -235,12 +277,47 @@ def train_evaluate_catboost_readmission(
     if "curve_df" in opt_thresh_info:
         opt_thresh_info["curve_df"].to_csv(os.path.join(output_dir, "threshold_curve.csv"), index=False)
         
-    # 4. Đánh giá trên test
-    test_pool = Pool(X_test, y_test, cat_features=cat_cols)
-    test_probs = final_model.predict_proba(test_pool)[:, 1]
-    test_metrics = compute_binary_metrics(y_test, test_probs, threshold=best_threshold)
+    # 4. Conformal Prediction trên bệnh nhân độc lập (theo code mẫu chuẩn nhóm)
+    # Lọc encounter_id nhỏ nhất cho mỗi bệnh nhân trong calibration và test
+    cal_df = df.iloc[calib_idx].sort_values("encounter_id").drop_duplicates("patient_nbr")
+    test_sub_df = df.iloc[test_idx].sort_values("encounter_id").drop_duplicates("patient_nbr")
+    assert set(cal_df["patient_nbr"]).isdisjoint(set(test_sub_df["patient_nbr"])), "Leakage giữa calib và test!"
     
-    pred_table = build_test_prediction_table(test_sample_ids, y_test, test_probs, threshold=best_threshold)
+    cal_pool = Pool(X_all.iloc[cal_df.index], cal_df["y"].values, cat_features=cat_cols)
+    test_sub_pool = Pool(X_all.iloc[test_sub_df.index], test_sub_df["y"].values, cat_features=cat_cols)
+    
+    cal_probs = final_model.predict_proba(cal_pool)[:, 1]
+    test_sub_probs = final_model.predict_proba(test_sub_pool)[:, 1]
+    
+    q_90 = calibrate(cal_df["y"].values, cal_probs, 0.90)
+    q_95 = calibrate(cal_df["y"].values, cal_probs, 0.95)
+    
+    conformal_summary_rows = summarize_conformal(cal_df["y"].values, cal_probs, test_sub_df["y"].values, test_sub_probs, levels=(0.90, 0.95))
+    conformal_df = pd.DataFrame([
+        dict(dataset="readmission", model="CatBoost", **row)
+        for row in conformal_summary_rows
+    ])
+    conformal_df.to_csv(os.path.join(output_dir, "conformal_results.csv"), index=False)
+    
+    # 5. Đánh giá trên toàn bộ 20.031 lượt test & Gán nhãn phân vân
+    test_full_pool = Pool(X_test, y_test, cat_features=cat_cols)
+    test_full_probs = final_model.predict_proba(test_full_pool)[:, 1]
+    
+    sets_90, labels_90 = assign_conformal_prediction_labels(test_full_probs, q_90, label_0_name="0", label_1_name="1", ambiguous_name="Phân vân")
+    sets_95, labels_95 = assign_conformal_prediction_labels(test_full_probs, q_95, label_0_name="0", label_1_name="1", ambiguous_name="Phân vân")
+    
+    test_metrics = compute_binary_metrics(y_test, test_full_probs, threshold=best_threshold)
+    
+    pred_table = build_test_prediction_table(
+        sample_ids=test_sample_ids,
+        y_true=y_test,
+        y_prob=test_full_probs,
+        threshold=best_threshold,
+        conformal_sets_90=sets_90,
+        conformal_labels_90=labels_90,
+        conformal_sets_95=sets_95,
+        conformal_labels_95=labels_95,
+    )
     pred_table.to_csv(os.path.join(output_dir, "test_predictions.csv"), index=False)
     
     feat_imp = pd.DataFrame({
@@ -253,5 +330,8 @@ def train_evaluate_catboost_readmission(
         "best_params": best_params,
         "best_threshold": best_threshold,
         "test_metrics": test_metrics,
+        "conformal_summary": conformal_df,
+        "q_90": q_90,
+        "q_95": q_95,
         "feature_importance": feat_imp,
     }
