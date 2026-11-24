@@ -157,6 +157,7 @@ def train_evaluate_catboost_heart(
                 random_seed=42,
                 verbose=False,
                 thread_count=2,
+                train_dir="algorithm/CatBoost/catboost_info",
             )
             model.fit(train_pool, eval_set=val_pool, early_stopping_rounds=30, verbose=False)
             fold_train_scores.append(roc_auc_score(y_tr, model.predict_proba(train_pool)[:, 1]))
@@ -202,6 +203,7 @@ def train_evaluate_catboost_heart(
         random_seed=42,
         verbose=False,
         thread_count=2,
+        train_dir="algorithm/CatBoost/catboost_info",
     )
     final_model.fit(full_fit_pool, verbose=False)
     
@@ -354,6 +356,7 @@ def train_evaluate_catboost_readmission(
                 random_seed=42,
                 verbose=False,
                 thread_count=4,
+                train_dir="algorithm/CatBoost/catboost_info",
             )
             model.fit(train_pool, eval_set=val_pool, early_stopping_rounds=25, verbose=False)
             fold_train_scores.append(average_precision_score(y_tr, model.predict_proba(train_pool)[:, 1]))
@@ -393,6 +396,7 @@ def train_evaluate_catboost_readmission(
         random_seed=42,
         verbose=False,
         thread_count=4,
+        train_dir="algorithm/CatBoost/catboost_info",
     )
     final_model.fit(full_fit_pool, verbose=False)
     
