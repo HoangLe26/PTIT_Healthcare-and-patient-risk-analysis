@@ -1,0 +1,51 @@
+{
+  "dataset": "heart",
+  "model": "KNN_k31_distance",
+  "k": 31,
+  "weights": "distance",
+  "distance": "euclidean",
+  "metric": "roc_auc",
+  "cv_mean": 0.9111769005847954,
+  "cv_seconds_by_fold": {
+    "fold_1": 0.07411239999964891,
+    "fold_2": 0.01522320000003674,
+    "fold_3": 0.018793100000038976,
+    "fold_4": 0.014562099999238853,
+    "fold_5": 0.014858900000035646
+  },
+  "refit_seconds": 0.005369399999835878,
+  "threshold_seconds": 0.0075239999996483675,
+  "calibration_seconds": 0.005788399999801186,
+  "development_seconds": 0.16663270000026387,
+  "threshold": {
+    "best_threshold": 0.15327625581689808,
+    "best_f2": 0.9042553191489362,
+    "precision": 0.6538461538461539,
+    "recall": 1.0,
+    "tp": 17,
+    "fp": 9,
+    "tn": 11,
+    "fn": 0
+  },
+  "conformal_q": {
+    "90": 0.8661972776483804,
+    "95": 0.9404332767015582
+  },
+  "n_cal": 36,
+  "batch_size": 192,
+  "blas_threads": 2,
+  "versions": {
+    "python": "3.13.12",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scipy": "1.15.3",
+    "sklearn": "1.7.2"
+  },
+  "sha256": {
+    "processed": "8ab994158aec88c9a6fc4c42f59eb44f6c5767b759a0c10945821f3f48348673",
+    "split": "369e29cb794f799ec42f9fabae37f09da90749b40134dad8e44368dc9edc03ed",
+    "features": "f4399d00bf04a2338fb8fe12d2513a54862f2514fc7a539b2fef9ed302b3e9b4",
+    "cv": "85fbba2763061463fcbcd270a415fa6f961956b2235e767c807224f33e13ba0f",
+    "conformal": "fa33077e642932b393308763695c0d1090eb8004e9b5a1561c2f37d48a5917a1"
+  }
+}
