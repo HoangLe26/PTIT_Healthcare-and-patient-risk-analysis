@@ -23,7 +23,9 @@ def load_model_predictions_and_metrics(
     return df, metrics
 
 
-def verify_sample_alignment(pred_dfs: Dict[str, pd.DataFrame], dataset_name: str) -> bool:
+def verify_sample_alignment(
+    pred_dfs: Dict[str, pd.DataFrame], dataset_name: str, *, verbose: bool = True,
+) -> bool:
     """
     Kiểm tra mẫu đánh giá (sample_id và y_true) có khớp 100% giữa các thuật toán hay không.
     Đáp ứng yêu cầu kiểm tra khớp mẫu trước khi ghép bài trong QUY_UOC_VA_PHAN_CONG_NHOM.md.
@@ -43,7 +45,8 @@ def verify_sample_alignment(pred_dfs: Dict[str, pd.DataFrame], dataset_name: str
             raise ValueError(f"[{dataset_name}] Danh sách sample_id không khớp giữa {ref_name} và {other_name}!")
         if not (ref_df["y_true"].values == other_df["y_true"].values).all():
             raise ValueError(f"[{dataset_name}] Nhãn thật y_true không khớp giữa {ref_name} và {other_name}!")
-    print(f"[{dataset_name}] XÁC NHẬN: Mẫu đánh giá (sample_id & y_true) khớp 100% giữa {len(names)} mô hình!")
+    if verbose:
+        print(f"[{dataset_name}] XÁC NHẬN: Mẫu đánh giá (sample_id & y_true) khớp 100% giữa {len(names)} mô hình!")
     return True
 
 

@@ -1,0 +1,9 @@
+dataset,comparison,status,n
+heart,Frozen test,matched,61
+heart,Logistic Regression,missing,
+heart,Decision Tree,missing,
+heart,CatBoost,matched,61
+readmission,Frozen test,matched,20031
+readmission,Logistic Regression,missing,
+readmission,Decision Tree,missing,
+readmission,CatBoost,matched,20031

@@ -1,0 +1,75 @@
+{
+  "dataset": "readmission",
+  "model": "KNN_k31_distance",
+  "k": 31,
+  "weights": "distance",
+  "distance": "euclidean",
+  "metric": "average_precision",
+  "cv_mean": 0.1806680947177629,
+  "cv_seconds_by_fold": {
+    "fold_1": 29.875161999999364,
+    "fold_2": 27.222542900000008,
+    "fold_3": 32.00676370000019
+  },
+  "refit_seconds": 1.7654935999998997,
+  "threshold_seconds": 22.93002340000021,
+  "calibration_seconds": 15.80153270000028,
+  "development_seconds": 130.0640868999999,
+  "threshold": {
+    "best_threshold": 0.03347066985827907,
+    "best_f2": 0.40657299741602065,
+    "precision": 0.12950102880658437,
+    "recall": 0.8741319444444444,
+    "tp": 1007,
+    "fp": 6769,
+    "tn": 1933,
+    "fn": 145
+  },
+  "conformal_q": {
+    "90": 0.28971517510960293,
+    "95": 0.9022592965320091
+  },
+  "n_cal": 7024,
+  "batch_size": 192,
+  "blas_threads": 2,
+  "versions": {
+    "python": "3.13.12",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scipy": "1.15.3",
+    "sklearn": "1.7.2"
+  },
+  "sha256": {
+    "processed": "8807d6293146145c31e3a9f2dda418e146e76934625eaafcc208a24271e4b469",
+    "split": "9d709625e09c216cc5f00969c25567c48a2249253ad3d818972c914ad7b05412",
+    "features": "757a7ccf4c1bbe42c1978b01c12fac7616d090d38fd5b8110d1e5570a26f56a9",
+    "cv": "297f131f3f3e77e37b0632cfa0417a214133417f1fb3e62842013c1f7120cd15",
+    "conformal": "a592097eda5b2975a59c0b242ee4da8c7b17e2aac0c72d53623f142d3864238a"
+  },
+  "test_metrics": {
+    "n_samples": 20031,
+    "n_positives": 2319,
+    "n_negatives": 17712,
+    "prevalence": 0.11577055563875992,
+    "threshold": 0.03347066985827907,
+    "roc_auc": 0.6107375669667291,
+    "average_precision": 0.18387447160095433,
+    "brier_score": 0.10139359552884128,
+    "log_loss": 0.4974175996414372,
+    "accuracy": 0.29299585642254505,
+    "balanced_accuracy": 0.5425012796376346,
+    "sensitivity": 0.8671841310909875,
+    "recall": 0.8671841310909875,
+    "specificity": 0.21781842818428185,
+    "precision": 0.12675701229120706,
+    "f1": 0.2211834579850418,
+    "f2": 0.3999443140686528,
+    "flagged_rate": 0.7920223653337327,
+    "tp": 2011,
+    "fp": 13854,
+    "tn": 3858,
+    "fn": 308
+  },
+  "evaluation_seconds": 42.5707768000002,
+  "runtime_seconds": 172.6348637000001
+}

@@ -1,0 +1,77 @@
+{
+  "dataset": "heart",
+  "model": "KNN_k31_distance",
+  "k": 31,
+  "weights": "distance",
+  "distance": "euclidean",
+  "metric": "roc_auc",
+  "cv_mean": 0.9111769005847954,
+  "cv_seconds_by_fold": {
+    "fold_1": 0.07411239999964891,
+    "fold_2": 0.01522320000003674,
+    "fold_3": 0.018793100000038976,
+    "fold_4": 0.014562099999238853,
+    "fold_5": 0.014858900000035646
+  },
+  "refit_seconds": 0.005369399999835878,
+  "threshold_seconds": 0.0075239999996483675,
+  "calibration_seconds": 0.005788399999801186,
+  "development_seconds": 0.16663270000026387,
+  "threshold": {
+    "best_threshold": 0.15327625581689808,
+    "best_f2": 0.9042553191489362,
+    "precision": 0.6538461538461539,
+    "recall": 1.0,
+    "tp": 17,
+    "fp": 9,
+    "tn": 11,
+    "fn": 0
+  },
+  "conformal_q": {
+    "90": 0.8661972776483804,
+    "95": 0.9404332767015582
+  },
+  "n_cal": 36,
+  "batch_size": 192,
+  "blas_threads": 2,
+  "versions": {
+    "python": "3.13.12",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scipy": "1.15.3",
+    "sklearn": "1.7.2"
+  },
+  "sha256": {
+    "processed": "8ab994158aec88c9a6fc4c42f59eb44f6c5767b759a0c10945821f3f48348673",
+    "split": "369e29cb794f799ec42f9fabae37f09da90749b40134dad8e44368dc9edc03ed",
+    "features": "f4399d00bf04a2338fb8fe12d2513a54862f2514fc7a539b2fef9ed302b3e9b4",
+    "cv": "85fbba2763061463fcbcd270a415fa6f961956b2235e767c807224f33e13ba0f",
+    "conformal": "fa33077e642932b393308763695c0d1090eb8004e9b5a1561c2f37d48a5917a1"
+  },
+  "test_metrics": {
+    "n_samples": 61,
+    "n_positives": 28,
+    "n_negatives": 33,
+    "prevalence": 0.45901639344262296,
+    "threshold": 0.15327625581689808,
+    "roc_auc": 0.945887445887446,
+    "average_precision": 0.9360880062560564,
+    "brier_score": 0.1046253843768154,
+    "log_loss": 0.3503310289475185,
+    "accuracy": 0.6721311475409836,
+    "balanced_accuracy": 0.696969696969697,
+    "sensitivity": 1.0,
+    "recall": 1.0,
+    "specificity": 0.3939393939393939,
+    "precision": 0.5833333333333334,
+    "f1": 0.7368421052631579,
+    "f2": 0.875,
+    "flagged_rate": 0.7868852459016393,
+    "tp": 28,
+    "fp": 20,
+    "tn": 13,
+    "fn": 0
+  },
+  "evaluation_seconds": 0.0636370000001989,
+  "runtime_seconds": 0.23026970000046276
+}
