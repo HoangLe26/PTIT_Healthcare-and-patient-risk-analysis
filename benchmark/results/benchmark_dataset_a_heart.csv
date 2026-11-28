@@ -1,2 +1,4 @@
 Mô hình,ROC-AUC (Chính),Average Precision,Ngưỡng F2,F2 Score,Recall / Sens,Specificity,Precision,Brier Score,TP (ca),FP (ca),TN (ca),FN (ca)
+KNN (Tùng),0.9459,0.9361,0.1533,0.8750,1.0000,0.3939,0.5833,0.1046,28,20,13,0
+Logistic Regression (Hoàng),0.9578,0.9527,0.1632,0.9032,1.0000,0.5455,0.6512,0.0887,28,15,18,0
 CatBoost (Khải),0.9329,0.9268,0.0092,0.8589,1.0000,0.3030,0.5490,0.1103,28,23,10,0
