@@ -1,83 +1,55 @@
 # Healthcare and Patient Risk Analysis
 
-Bài tập lớn Machine Learning: phân loại bệnh tim Cleveland và nguy cơ tái nhập viện `<30` ngày tại thời điểm xuất viện. Pipeline chống leakage, calibration/threshold độc lập và phép chia theo bệnh nhân ở readmission. Nội dung môn học được đối chiếu sáu PDF trong `Slide/`.
+Bài tập lớn môn Học máy của Tùng, Hoàng và Khải. Nhóm so sánh KNN, Logistic Regression và CatBoost trên hai bài toán phân loại. Mỗi bảng so sánh dùng cùng hồ sơ test của một dataset.
 
-## Chạy và đọc kết quả Conformal Prediction
+| Dataset | Mục tiêu dự đoán | Chỉ số chính |
+|---|---|---|
+| [UCI Heart Disease – Cleveland](https://doi.org/10.24432/C52P4X) | Phân loại tình trạng bệnh tim theo hồ sơ khám và xét nghiệm. Nhãn dương khi `num > 0`. | ROC-AUC |
+| [UCI Diabetes 130-US Hospitals](https://doi.org/10.24432/C5230J) | Tại thời điểm xuất viện, dự đoán lượt điều trị có ghi nhận tái nhập viện trong dưới 30 ngày. | Average Precision |
 
-| File | Cách sử dụng |
-|---|---|
-| [conformal_prediction.py](Conformal_Prediction/conformal_prediction.py) | Từ thư mục dự án, dùng `from Conformal_Prediction.conformal_prediction import summarize`, rồi gọi hàm `summarize(y_cal, p_cal, y_test, p_test)` để đánh giá mô hình đã huấn luyện ở mức bao phủ 90% và 95%. Hai vector `p` chứa xác suất của lớp 1 theo đúng thứ tự nhãn. |
-| [run_conformal_reference.py](Conformal_Prediction/run_conformal_reference.py) | Chạy `python Conformal_Prediction/run_conformal_reference.py` từ thư mục dự án để huấn luyện ba thuật toán với tham số cố định trên hai dataset và ghi lại bảng CSV. |
-| [conformal_reference_results.csv](Conformal_Prediction/conformal_reference_results.csv) | Bảng tham chiếu gồm 12 dòng. Đọc `target` là mức bao phủ mục tiêu, `coverage` là tỷ lệ tập dự đoán chứa nhãn đúng và `ambiguous` là tỷ lệ hồ sơ nhận cả hai nhãn. Các tỷ lệ dùng thang 0–1. |
+## Ai đóng góp phần nào cho báo cáo cuối?
 
-Khi nhóm chốt mô hình cuối, mỗi thành viên dùng cùng hàm trên dự đoán của mình và gửi kết quả cho Hoàng theo [quy ước và phân công nhóm](QUY_UOC_VA_PHAN_CONG_NHOM.md).
+| Thành viên | Nội dung thành viên viết | Nguồn để tổng hợp |
+|---|---|---|
+| Tùng | Hai bộ dữ liệu, cách chia theo bệnh nhân, phương pháp KNN, chọn số láng giềng, kết quả và các ca dự đoán sai. | [Báo cáo KNN](algorithm/KNN/README.md), [kết quả KNN](algorithm/KNN/artifacts) và [kiểm tra dữ liệu](data/metadata/experiment_cohort_audit.json) |
+| Hoàng | Logistic Regression, chọn L1/L2 và C, giải thích hệ số và lỗi. Phụ trách phần Conformal Prediction của cả ba thuật toán ở mức bao phủ 90% và 95%. | [Code Logistic](algorithm/Logistic/run_logistic.py), [kết quả Logistic](algorithm/Logistic/artifacts) và [hàm Conformal chung](Conformal_Prediction/conformal_prediction.py). Phần diễn giải Logistic cần viết từ các kết quả này. |
+| Khải | CatBoost, chọn tham số, phân tích lỗi. Phụ trách cách chọn ngưỡng F2, tính chỉ số, so sánh ba mô hình trên từng dataset và chọn ca bất đồng. | [Báo cáo CatBoost](algorithm/CatBoost/README.md), [báo cáo phần dùng chung của Khải](reports/BAO_CAO_PHAN_DUNG_CHUNG_KHAI.md) và [bảng benchmark](benchmark/results) |
 
-## Đọc kết quả
+Hoàng chịu trách nhiệm viết và hoàn thiện báo cáo cuối tại `reports/final_report.md`. Tùng và Khải cung cấp phần thực nghiệm, nhận xét và hạn chế của mô hình mình. Xem nhiệm vụ của [Tùng](algorithm/KNN/NHIEM_VU.md), [Hoàng](algorithm/Logistic/NHIEM_VU.md) và [Khải](algorithm/CatBoost/NHIEM_VU.md). Báo cáo cuối dùng hai bảng phân loại (mỗi dataset ba thuật toán) và một bảng Conformal 12 dòng (ba thuật toán × hai dataset × hai mức bao phủ). Hoàng ghép bảng Conformal từ bốn dòng của từng mô hình cuối: [KNN](algorithm/KNN/artifacts/conformal_4rows_for_hoang.csv), [Logistic](algorithm/Logistic/artifacts/conformal_4rows_for_hoang.csv), [CatBoost](algorithm/CatBoost/artifacts/conformal_4rows_for_hoang.csv).
 
-- `reports/final_report.md` / `reports/final_report.pdf`: báo cáo chính.
-- `reports/presentation.pptx`: deck bảo vệ; `reports/slides_outline.md`: lời dẫn.
-- `reports/defense_qa.md`: câu hỏi bảo vệ.
-- `output/healthcare_ml_submission.zip`: gói bàn giao cả báo cáo, code, dữ liệu và artifact; SHA-256 trong `submission_manifest.json`.
-- `reports/protocol.md`: protocol chốt trước test; `reports/acceptance_checklist.md`: nghiệm thu.
-- `artifacts/metrics/*_test_metrics.csv`: điểm test; `*_cv_results.csv`: điểm lựa chọn development, không phải test.
-- `artifacts/metrics/*_confidence_intervals.csv`: CI của recipe chọn bằng development và một đối chứng.
-- `artifacts/metrics/*_controlled_ablations_summary.csv`: E02/E05/E06/E08/E09/E10 cùng folds.
-- `data/metadata/`: provenance/checksum, data cards, cohort flow và schema.
-- `notebooks/`: EDA, kết quả và tối ưu đã chạy từ kernel sạch.
+## Dữ liệu và quy trình đánh giá
 
-## Cài và chạy trên Windows
+Dùng [dữ liệu đã xử lý](data/processed) theo đúng thứ tự dòng và [bản chia của nhóm](data/splits). Chọn tham số trên `fit`, chọn ngưỡng F2 trên `threshold`, hiệu chỉnh Conformal trên `calibration`, đánh giá trên `test`. Với Diabetes, các lượt của cùng bệnh nhân thuộc cùng một tập. Riêng Conformal dùng lượt có mã encounter nhỏ nhất của mỗi bệnh nhân trong từng tập hiệu chỉnh và test. Ghi nhận trong báo cáo rằng nhóm đã xem các tập test này ở đợt thực nghiệm trước. Xem [quy ước và phân công](QUY_UOC_VA_PHAN_CONG_NHOM.md).
 
-Python 3.10 được kiểm chứng. Cài môi trường riêng từ project root (đường dẫn có khoảng trắng/tiếng Việt được hỗ trợ):
+## Chạy từ thư mục gốc trên Windows
+
+Dùng PowerShell và Python 3.10. Tạo môi trường khi cài lần đầu. File khóa hiện tại thiếu CatBoost nên cần cài thêm thư viện này.
 
 ```powershell
 $env:PYTHONUTF8 = '1'
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-lock.txt
-.\.venv\Scripts\python.exe -m pip install --no-deps -e .
-powershell -ExecutionPolicy Bypass -File scripts/run_all.ps1 -Smoke
+.\.venv\Scripts\python.exe -m pip install catboost
 ```
 
-Chạy đầy đủ:
+Mỗi lệnh sau huấn luyện một thuật toán trên cả hai dataset và ghi lại kết quả vào thư mục `artifacts` của thuật toán đó.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/run_all.ps1
-.\.venv\Scripts\python.exe -X utf8 tools/build_notebooks.py
+.\.venv\Scripts\python.exe -m algorithm.KNN.run_knn
+.\.venv\Scripts\python.exe -m algorithm.Logistic.run_logistic
+.\.venv\Scripts\python.exe -m algorithm.CatBoost.run_catboost
 ```
 
-Linux/macOS: tạo `.venv`, cài dependencies và `pip install --no-deps -e .`, sau đó `bash scripts/run_all.sh`. Lock hiện có là snapshot môi trường Windows/Python3.10; các wheel hoặc dependency đặc thù hệ điều hành cần resolver tương thích nếu chuyển nền tảng. Không tuyên bố đã kiểm thử Linux/macOS.
-
-## Demo cục bộ
+Khi cả ba đã xuất dự đoán, đối chiếu mẫu và tạo lại hai bảng phân loại. Kiểm tra mỗi bảng có đủ ba hàng trước khi đưa vào báo cáo.
 
 ```powershell
-.\.venv\Scripts\python.exe -X utf8 -m streamlit run app/streamlit_app.py
+.\.venv\Scripts\python.exe -m algorithm.KNN.run_knn --check-alignment
+.\.venv\Scripts\python.exe -m benchmark.run_benchmark
+.\.venv\Scripts\python.exe -m pytest -q tests
 ```
 
-Demo dùng artifact đã lưu, không train lại. Đầu vào mẫu chỉ giúp kiểm tra giao diện; probability là ước lượng từ dữ liệu lịch sử, không kết luận chẩn đoán/điều trị.
+## Dùng Conformal với mô hình cuối
 
-## Tái lập và cache
+Gọi `summarize(y_cal, p_cal, y_test, p_test)` từ [module dùng chung](Conformal_Prediction/conformal_prediction.py). Hai vector xác suất phải tương ứng với lớp 1 và cùng thứ tự với nhãn thật. Đọc `coverage` cùng với `singleton` và `ambiguous` để biết mô hình đạt độ bao phủ quan sát được với bao nhiêu hồ sơ nhận một hoặc cả hai nhãn.
 
-`download` dùng raw archive cache; `prepare` dựng cohort/splits deterministic; `train` checkpoint từng model. `freeze` khóa hash. Sau khi freeze, `train` tái sử dụng artifact; `evaluate` tái sử dụng đợt đánh giá test đã lưu để tránh test tuning. Muốn một nghiên cứu mới, tạo checkout/thư mục nghiên cứu khác và protocol mới; không xóa manifest để thử nhiều cấu hình trên cùng test rồi chọn điểm đẹp.
-
-`artifacts/smoke/` tách biệt `artifacts/` full. Smoke không có mục đích ước lượng chất lượng mô hình; chỉ kiểm tra wiring, preprocessing và prediction. `tools/run_experiments.py` thực thi tuần tự các bước nghiên cứu với stage logs; báo cáo chỉ đọc artifact.
-
-## Thiết kế cần biết
-
-- Heart: 303 hàng, 61 test; development tách fit/tune 169, calibration 36, threshold 37.
-- Readmission: group theo patient, không coi mỗi encounter độc lập. Cohort loại expired/hospice theo bảng mã và Unknown/Invalid gender.
-- Model cuối giữ fit/tune set riêng; không refit vào calibration/threshold. Điều này giảm cỡ train nhưng cho phép kiểm toán độc lập rõ.
-- Full nghĩa là không subsample cohort chính. Random search 12 cấu hình Heart, 6 readmission; folds 5/3, tối đa hai luồng xử lý.
-- Gaussian models dùng numerical-only; bảng ghi feature_set để không nhầm thêm thông tin với thuật toán tốt hơn.
-- Bootstrap fixed test predictions không chứa uncertainty từ model selection/retraining. Readmission resample toàn bệnh nhân với multiplicity.
-- Đợt thực nghiệm ban đầu áp dụng Conformal cho Heart. Script tham chiếu của nhóm đánh giá cả Cleveland và Diabetes. Với Diabetes, script lấy lượt có `encounter_id` nhỏ nhất của mỗi bệnh nhân trong từng tập hiệu chỉnh và test.
-
-## Kiểm tra và nguồn
-
-```powershell
-.\.venv\Scripts\python.exe -X utf8 -m pytest -q
-.\.venv\Scripts\python.exe -X utf8 -m pip check
-```
-
-Raw source: [UCI Heart Disease](https://archive.ics.uci.edu/dataset/45/heart+disease), [UCI Diabetes 130-US Hospitals](https://archive.ics.uci.edu/dataset/296/diabetes+130-us+hospitals+for+years+1999-2008), CC BY 4.0. Citation/DOI trong data cards. Dữ liệu giảng viên chỉ đọc, giữ nguyên.
-
-Xem `reports/limitations.md` cho giới hạn thật và `reports/decision_log.md` cho điều chỉnh môi trường, thời gian và thiết kế.
-
+[Script tham chiếu](Conformal_Prediction/run_conformal_reference.py) và [CSV tham chiếu](Conformal_Prediction/conformal_reference_results.csv) minh họa quy trình với KNN, Logistic và Decision Tree cấu hình cố định. Khi cần tái tạo ví dụ, chạy `.\.venv\Scripts\python.exe Conformal_Prediction/run_conformal_reference.py`.
