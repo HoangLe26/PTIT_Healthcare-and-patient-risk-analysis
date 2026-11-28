@@ -1,6 +1,6 @@
 # Quy ước thực nghiệm và phân công nhóm
 
-**Đề tài:** So sánh KNN, Logistic Regression và Decision Tree trong phân loại tình trạng bệnh tim và dự đoán tái nhập viện sớm. Dùng Conformal Prediction để đánh giá khi nào mỗi mô hình có thể đưa ra một nhãn duy nhất.
+**Đề tài:** So sánh KNN, Logistic Regression và CatBoost trong phân loại tình trạng bệnh tim và dự đoán tái nhập viện sớm. Dùng Conformal Prediction để đánh giá khi nào mỗi mô hình có thể đưa ra một nhãn duy nhất.
 
 **Phạm vi đã chốt ngày 20/11/2026.** Đây là kế hoạch cho đợt thực nghiệm của Tùng, Hoàng và Khải. Khi tài liệu cũ nêu danh sách thuật toán hoặc quy trình hiệu chỉnh khác, nhóm dùng quy ước trong file này. Các kết quả từ đợt trước phải được ghi rõ nguồn nếu trích dẫn.
 
@@ -39,9 +39,9 @@ Tùng lưu cùng một danh sách fold cho cả nhóm. Trong `fit`, dùng CV ph�
 |---|---|---|
 | **Tùng – KNN** | Thử `k ∈ {5, 15, 31}` và bỏ phiếu đều / theo nghịch đảo khoảng cách, dùng khoảng cách Euclidean. Giải thích tác động của k và ảnh hưởng của đơn vị đo lên khoảng cách. | Kiểm tra cohort, xuất danh sách fold và bảng số mẫu/dương tính mỗi tập. Với B, chạy dự đoán theo lô, tái sử dụng khoảng cách tới 31 láng giềng gần nhất trong mỗi fold cho cả sáu cấu hình để giảm chi phí. |
 | **Hoàng – Logistic Regression** | Thử `C ∈ {0.01, 0.1, 1}` kết hợp L1/L2, dùng bộ giải hỗ trợ cả hai. Kiểm tra hội tụ, giải thích chiều tác động của một số hệ số và ảnh hưởng của điều chuẩn. | Viết hàm Split Conformal Prediction dùng chung và tổng hợp độ bao phủ thực tế, tỷ lệ kết quả mơ hồ ở hai mức mục tiêu 90% và 95%. |
-| **Khải – Decision Tree** | Dùng Gini, thử độ sâu tối đa `{3, 5, 8}` và số mẫu tối thiểu mỗi lá `{5, 20}`. So sánh điểm train/CV để nhận diện quá khớp, minh họa một đường đi từ gốc đến lá. | Viết hàm chọn ngưỡng, tính chỉ số và lập ma trận nhầm lẫn dùng chung. Bàn giao bảng đối chiếu ba thuật toán trên từng dataset. |
+| **Khải – CatBoost** | Thử độ sâu 4/6 trên cả hai bộ. Với Cleveland, thử learning rate 0,03/0,1 và L2 1/5. Với Diabetes, thử learning rate 0,05/0,1 và cố định L2 = 3. Giải thích cách kết hợp các cây và ảnh hưởng của độ sâu. | Viết hàm chọn ngưỡng, tính chỉ số và lập ma trận nhầm lẫn dùng chung. Bàn giao bảng đối chiếu ba thuật toán trên từng dataset. |
 
-**Quy tắc chọn mô hình.** Với từng thuật toán trên từng dataset, chọn cấu hình có chỉ số chính trung bình qua các fold cao nhất. Nếu bằng điểm, ưu tiên k lớn hơn và bỏ phiếu đều cho KNN, C nhỏ hơn rồi L2 cho Logistic, cây nông hơn rồi lá lớn hơn cho Decision Tree. Fit lại cấu hình đã chọn trên toàn bộ `fit`. Giữ mô hình này cho cả đánh giá phân loại và Conformal. Dùng xác suất gốc và trọng số lớp mặc định.
+**Quy tắc chọn mô hình.** Với từng thuật toán trên từng dataset, chọn cấu hình có chỉ số chính trung bình qua các fold cao nhất. Nếu bằng điểm, ưu tiên k lớn hơn và bỏ phiếu đều cho KNN, C nhỏ hơn rồi L2 cho Logistic, độ sâu nhỏ hơn cho CatBoost (trên Cleveland, tiếp tục ưu tiên L2 lớn hơn nếu cùng độ sâu). Fit lại cấu hình đã chọn trên toàn bộ `fit`. Giữ mô hình này cho cả đánh giá phân loại và Conformal. Dùng xác suất gốc và trọng số lớp mặc định.
 
 ## 4. Chỉ số chung và phân tích lỗi
 
@@ -69,7 +69,7 @@ Tài liệu phương pháp: [Angelopoulos và Bates, nhập môn Conformal Predi
 |---|---|
 | [conformal_prediction.py](Conformal_Prediction/conformal_prediction.py) | Hoàng phụ trách hàm `summarize(y_cal, p_cal, y_test, p_test)`. Tùng, Hoàng và Khải truyền nhãn thật cùng xác suất lớp 1 của mô hình mình vào hàm. Mỗi lần gọi cho một dataset trả về hai dòng, tương ứng 90% và 95%. |
 | [run_conformal_reference.py](Conformal_Prediction/run_conformal_reference.py) | Cả ba tham khảo cách đọc bản chia, chọn lượt theo bệnh nhân ở Diabetes và lấy đúng cột xác suất lớp 1. Chạy `python Conformal_Prediction/run_conformal_reference.py` để tái tạo kết quả với các tham số cố định trong script. |
-| [conformal_reference_results.csv](Conformal_Prediction/conformal_reference_results.csv) | Hoàng dùng bảng tham chiếu 12 dòng để đối chiếu cấu trúc kết quả. Mỗi dòng ứng với một dataset, một thuật toán và một mức bao phủ. |
+| [conformal_reference_results.csv](Conformal_Prediction/conformal_reference_results.csv) | Bảng tham chiếu cũ dùng Decision Tree. Hoàng dùng bảng tham chiếu 12 dòng để đối chiếu cấu trúc kết quả. Mỗi dòng ứng với một dataset, một thuật toán và một mức bao phủ. |
 
 Khi đã chốt tham số, mỗi người gửi Hoàng **4 dòng kết quả** từ mô hình cuối của mình (2 dataset × 2 mức bao phủ), kèm tên dataset và cấu hình mô hình. Hoàng ghép thành bảng chính thức và lưu riêng để cả nhóm có thể đối chiếu với bảng tham chiếu.
 
@@ -78,4 +78,4 @@ Khi đã chốt tham số, mỗi người gửi Hoàng **4 dòng kết quả** t
 1. **Trước huấn luyện:** Tùng bàn giao danh sách dòng, đặc trưng, fold và kết quả kiểm tra theo bệnh nhân. Hoàng và Khải có thể thử các hàm đánh giá trên xác suất giả lập trong lúc chờ.
 2. **Trước đánh giá test:** mỗi người bàn giao cấu hình đã chọn, bảng điểm CV, ngưỡng F2 và hai ngưỡng Conformal cho từng dataset. Ghi thời gian chạy. Lưu các lựa chọn trước khi xem bảng so sánh. Các tập test này đã được dùng trong đợt trước, cần công bố việc tái sử dụng khi viết phần hạn chế. Mọi điều chỉnh sau khi xem test phải ghi là phân tích thăm dò.
 3. **Khi ghép bài:** mỗi người nộp code chạy lại được, hai bảng dự đoán, kết quả Conformal, phân tích lỗi và slide giải thích phương pháp của mình. Khải ghép hai bảng phân loại với ba hàng thuật toán mỗi bảng. Hoàng ghép bảng Conformal gồm 12 hàng (3 thuật toán × 2 dataset × 2 mức bao phủ). Tùng kiểm tra mẫu đánh giá khớp nhau giữa ba thuật toán.
-4. **Khi bảo vệ:** Tùng giải thích khoảng cách và ảnh hưởng của k. Hoàng giải thích điều chuẩn và độ bao phủ Conformal. Khải giải thích quy tắc phân nhánh, quá khớp và tác động của ngưỡng lên số ca bỏ sót. Mỗi người trình bày ít nhất một lỗi quan sát được hoặc một loại lỗi có số ca bằng 0 cùng kết quả Conformal của mô hình mình.
+4. **Khi bảo vệ:** Tùng giải thích khoảng cách và ảnh hưởng của k. Hoàng giải thích điều chuẩn và độ bao phủ Conformal. Khải giải thích cách CatBoost xây dựng cây tuần tự, quá khớp và tác động của ngưỡng lên số ca bỏ sót. Mỗi người trình bày ít nhất một lỗi quan sát được hoặc một loại lỗi có số ca bằng 0 cùng kết quả Conformal của mô hình mình.

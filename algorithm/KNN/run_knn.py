@@ -180,7 +180,6 @@ def evaluate(frame, splits, features, selected, model, cal, p_cal, frozen, outpu
 def check_alignment(output):
     paths = {
         "Logistic Regression": ROOT / "algorithm" / "Logistic" / "artifacts",
-        "Decision Tree": ROOT / "algorithm" / "Decision_Tree" / "artifacts",
         "CatBoost": ROOT / "algorithm" / "CatBoost" / "artifacts",
     }
     rows = []

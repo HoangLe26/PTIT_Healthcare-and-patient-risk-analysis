@@ -93,7 +93,7 @@ Bảo đảm lý thuyết là độ bao phủ biên khi mẫu calibration và te
 
 Thời gian tính từ nạp dữ liệu qua CV, khóa ngưỡng và xuất kết quả test là 0,23 giây cho Cleveland và 172,63 giây cho Diabetes. Ba fold Diabetes lần lượt mất 29,88, 27,22 và 32,01 giây. Các giai đoạn chi tiết nằm trong hai `run_summary.json`.
 
-ID và nhãn thật của KNN khớp bản chia test gốc và các bảng CatBoost hiện có trong repo, đủ 61 mẫu Cleveland và 20.031 mẫu Diabetes. Repo hiện chưa có bảng test Logistic Regression và Decision Tree để đối chiếu ba mô hình theo quy ước. [Kết quả đối chiếu](artifacts/test_alignment.csv)
+ID và nhãn thật của KNN khớp bản chia test gốc và các bảng CatBoost hiện có trong repo, đủ 61 mẫu Cleveland và 20.031 mẫu Diabetes. Repo hiện chưa có bảng test Logistic Regression để đối chiếu ba mô hình theo quy ước. [Kết quả đối chiếu](artifacts/test_alignment.csv)
 
 ## Chạy lại và bàn giao
 
