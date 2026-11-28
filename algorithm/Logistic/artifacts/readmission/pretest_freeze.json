@@ -1,0 +1,14 @@
+{
+  "params": {
+    "lr__C": 0.1,
+    "lr__penalty": "l2"
+  },
+  "cv_metric": "average_precision",
+  "cv_mean": 0.21396231166292015,
+  "threshold": 0.07929890781924295,
+  "conformal_q": {
+    "0.9": 0.2977489523729242,
+    "0.95": 0.8950246192663474
+  },
+  "development_seconds": 50.33422139999993
+}
