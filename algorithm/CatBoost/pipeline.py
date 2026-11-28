@@ -4,10 +4,10 @@ import json
 import numpy as np
 import pandas as pd
 from typing import Dict, Any, List, Tuple
-from sklearn.model_selection import StratifiedKFold, StratifiedGroupKFold
 from sklearn.metrics import roc_auc_score, average_precision_score
 from catboost import CatBoostClassifier, Pool
 
+from benchmark.cohort import cohort_paths
 from benchmark.data_loader import load_heart_data, load_readmission_data
 from benchmark.thresholds import find_optimal_f2_threshold
 from benchmark.evaluation import (
@@ -116,8 +116,13 @@ def train_evaluate_catboost_heart(
     y_test = y_all[test_idx]
     test_sample_ids = df_test["row_id"].values
     
-    # 1. 5-fold Stratified CV trên tập fit (học median trong từng fold)
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    # 1. 5-fold CV theo đúng file fold chung của nhóm (data/splits/heart_cv.csv)
+    paths = cohort_paths("heart")
+    folds_series = pd.read_csv(paths["cv"]).set_index("row_position").loc[df_fit.index, "fold"]
+    cv_splits = [
+        (np.where(folds_series.values != f)[0], np.where(folds_series.values == f)[0])
+        for f in sorted(folds_series.unique())
+    ]
     param_grid = [
         {"depth": 4, "learning_rate": 0.03, "l2_leaf_reg": 1},
         {"depth": 4, "learning_rate": 0.1, "l2_leaf_reg": 1},
@@ -136,7 +141,7 @@ def train_evaluate_catboost_heart(
     for params in param_grid:
         fold_val_scores = []
         fold_train_scores = []
-        for train_fold_idx, val_fold_idx in skf.split(df_fit, y_fit):
+        for train_fold_idx, val_fold_idx in cv_splits:
             df_tr = df_fit.iloc[train_fold_idx]
             df_va = df_fit.iloc[val_fold_idx]
             y_tr, y_va = y_fit[train_fold_idx], y_fit[val_fold_idx]
@@ -318,8 +323,13 @@ def train_evaluate_catboost_readmission(
     y_test = y_all[test_idx]
     test_sample_ids = df_test["encounter_id"].values
     
-    # 1. 3-fold StratifiedGroupKFold theo bệnh nhân trên tập fit
-    sgkf = StratifiedGroupKFold(n_splits=3, shuffle=True, random_state=42)
+    # 1. 3-fold Group CV theo đúng file fold chung của nhóm (data/splits/readmission_cv.csv)
+    paths = cohort_paths("readmission")
+    folds_series = pd.read_csv(paths["cv"]).set_index("row_position").loc[df_fit.index, "fold"]
+    cv_splits = [
+        (np.where(folds_series.values != f)[0], np.where(folds_series.values == f)[0])
+        for f in sorted(folds_series.unique())
+    ]
     param_grid = [
         {"depth": 4, "learning_rate": 0.05, "l2_leaf_reg": 3},
         {"depth": 4, "learning_rate": 0.10, "l2_leaf_reg": 3},
@@ -334,7 +344,7 @@ def train_evaluate_catboost_readmission(
     for params in param_grid:
         fold_val_scores = []
         fold_train_scores = []
-        for train_fold_idx, val_fold_idx in sgkf.split(df_fit, y_fit, groups=patient_fit):
+        for train_fold_idx, val_fold_idx in cv_splits:
             df_tr = df_fit.iloc[train_fold_idx]
             df_va = df_fit.iloc[val_fold_idx]
             y_tr, y_va = y_fit[train_fold_idx], y_fit[val_fold_idx]
@@ -408,9 +418,10 @@ def train_evaluate_catboost_readmission(
     if "curve_df" in opt_thresh_info:
         opt_thresh_info["curve_df"].to_csv(os.path.join(output_dir, "threshold_curve.csv"), index=False)
         
-    # 4. Conformal Prediction trên bệnh nhân độc lập (encounter_id nhỏ nhất mỗi bệnh nhân)
-    cal_sub_df = df_calib.sort_values("encounter_id").drop_duplicates("patient_nbr")
-    test_sub_df = df_test.sort_values("encounter_id").drop_duplicates("patient_nbr")
+    # 4. Conformal Prediction theo đúng danh sách bệnh nhân độc lập chung của nhóm (readmission_conformal.csv)
+    conformal_sel = pd.read_csv(paths["conformal"])
+    cal_sub_df = df.iloc[conformal_sel.loc[conformal_sel["split"] == "calibration", "row_position"]]
+    test_sub_df = df.iloc[conformal_sel.loc[conformal_sel["split"] == "test", "row_position"]]
     assert set(cal_sub_df["patient_nbr"]).isdisjoint(set(test_sub_df["patient_nbr"])), "Leakage calib-test!"
     
     X_cal_sub = transform_features(cal_sub_df, feature_cols, cat_cols, medians_fit)
@@ -423,6 +434,19 @@ def train_evaluate_catboost_readmission(
     q_95 = calibrate(cal_sub_df["y"].values, cal_probs, 0.95)
     
     model_tag = f"CatBoost_d{best_params['depth']}_lr{best_params['learning_rate']}_l2_{best_params['l2_leaf_reg']}"
+    pretest_freeze = {
+        "dataset": "readmission",
+        "model": model_tag,
+        "best_params": best_params,
+        "cv_metric": "average_precision",
+        "cv_mean": float(best_score),
+        "threshold": float(best_threshold),
+        "conformal_q": {"90": float(q_90), "95": float(q_95)},
+        "n_cal": int(len(cal_sub_df)),
+        "development_seconds": round(time.perf_counter() - t0, 2),
+    }
+    with open(os.path.join(output_dir, "pretest_freeze.json"), "w", encoding="utf-8") as f:
+        json.dump(pretest_freeze, f, indent=2, ensure_ascii=False)
     conformal_summary_rows = summarize_conformal(
         cal_sub_df["y"].values, cal_probs, test_sub_df["y"].values, test_sub_probs, levels=(0.90, 0.95)
     )

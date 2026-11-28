@@ -25,13 +25,14 @@ CatBoost là thuật toán **Gradient Boosting trên cây quyết định đối
   * **Brier Score:** `0.1103`.
 
 ### Dataset B: Diabetes Readmission (N=99.340, Test=20.031, 44 biến gồm 36 biến phân loại)
-* **Cấu hình tối ưu (3-fold Group CV theo bệnh nhân):** `depth=4`, `learning_rate=0.1`, `l2_leaf_reg=3` (`CatBoost_d4_lr0.1_l2_3`).
-* **Ngưỡng $F_2$ tối ưu:** `0.0767`.
-* **Thời gian chạy:** `300.88s`.
+* **Cấu hình tối ưu (3-fold Group CV theo `data/splits/readmission_cv.csv`):** `depth=6`, `learning_rate=0.1`, `l2_leaf_reg=3` (`CatBoost_d6_lr0.1_l2_3`).
+* **Ngưỡng $F_2$ tối ưu:** `0.0757`.
+* **Thời gian chạy:** `250.66s`.
 * **Kết quả Test:**
-  * **Average Precision (Chính):** **`0.2340`** (Tăng vượt trội so với baseline ngẫu nhiên ~11%).
-  * **ROC-AUC:** **`0.6695`**.
-  * **Recall:** **`79.60%`**.
+  * **Average Precision (Chính):** **`0.2382`** (Tăng vượt trội so với baseline ngẫu nhiên ~11%).
+  * **ROC-AUC:** **`0.6700`**.
+  * **Recall:** **`80.34%`** (Bắt trúng 1.863/2.319 ca tái nhập viện, FN = 456 ca).
+  * **Brier Score:** `0.0971`.
 
 ---
 
@@ -43,8 +44,8 @@ Thay vì ép mô hình phải đưa ra nhãn dứt khoát $0$ hoặc $1$ đối 
 |---|---|:---:|:---:|:---:|:---:|:---:|:---:|
 | **Heart Disease** | `CatBoost_d6_lr0.1_l2_5` | 90% | 0.9788 | **96.72%** | 44.26% | **55.74%** | 0.00% |
 | **Heart Disease** | `CatBoost_d6_lr0.1_l2_5` | 95% | 0.9995 | **100.00%** | 1.64% | **98.36%** | 0.00% |
-| **Readmission** | `CatBoost_d4_lr0.1_l2_3` | 90% | 0.3208 | **90.60%** | **99.28%** | **0.00%** | 0.72% |
-| **Readmission** | `CatBoost_d4_lr0.1_l2_3` | 95% | 0.8991 | **95.02%** | **72.98%** | **27.02%** | 0.00% |
+| **Readmission** | `CatBoost_d6_lr0.1_l2_3` | 90% | 0.3397 | **90.65%** | **99.30%** | **0.00%** | 0.70% |
+| **Readmission** | `CatBoost_d6_lr0.1_l2_3` | 95% | 0.8988 | **95.02%** | **72.33%** | **27.67%** | 0.00% |
 
 * File 4 dòng gửi Hoàng ghép bảng 12 dòng: `algorithm/CatBoost/artifacts/conformal_4rows_for_hoang.csv`.
 * File chi tiết ca FN/FP sai nặng nhất: `algorithm/CatBoost/artifacts/{heart,readmission}/extreme_errors.csv`.
